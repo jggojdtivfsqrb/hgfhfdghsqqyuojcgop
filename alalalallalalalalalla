@@ -1,0 +1,106 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local fakeSeat = nil
+
+-- GUI setup
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "BypassGUI"
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame")
+frame.Name = "BypassFrame"
+frame.Size = UDim2.new(0, 160, 0, 70)
+frame.Position = UDim2.new(0.4, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BackgroundTransparency = 0.7
+frame.BorderColor3 = Color3.new(1, 1, 1)
+frame.BorderSizePixel = 2
+frame.Active = true
+frame.Draggable = true
+frame.Selectable = true
+frame.Parent = screenGui
+
+-- Bo góc
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 12)
+frameCorner.Parent = frame
+
+-- Nút "Bypass Revive"
+local button = Instance.new("TextButton")
+button.Name = "BypassButton"
+button.Size = UDim2.new(0, 120, 0, 30)
+button.Position = UDim2.new(0, 20, 0, 20)
+button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+button.BackgroundTransparency = 0.3
+button.BorderColor3 = Color3.new(1, 1, 1)
+button.BorderSizePixel = 1
+button.Text = "Bypass Revive"
+button.TextColor3 = Color3.new(0, 0, 0)
+button.Font = Enum.Font.SourceSans
+button.TextSize = 16
+button.Parent = frame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 8)
+buttonCorner.Parent = button
+
+-- Nút "X" đóng GUI
+local closeBtn = Instance.new("TextButton")
+closeBtn.Name = "CloseButton"
+closeBtn.Size = UDim2.new(0, 24, 0, 24)
+closeBtn.Position = UDim2.new(1, -26, 0, 2)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.BackgroundTransparency = 0.3
+closeBtn.BorderColor3 = Color3.new(1, 1, 1)
+closeBtn.BorderSizePixel = 1
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(0.8, 0, 0)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 16
+closeBtn.Parent = frame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Bypass function (KHÔNG kiểm tra máu)
+local function applyBypass()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+
+    if not hrp or not hum then return end
+
+    pcall(function()
+        hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+        hum:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+        hum:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+        hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+        hum:ChangeState(Enum.HumanoidStateType.Running)
+        hum.PlatformStand = false
+    end)
+
+    if not fakeSeat then
+        fakeSeat = Instance.new("Seat")
+        fakeSeat.Name = "FakeSeat"
+        fakeSeat.Size = Vector3.new(2, 1, 2)
+        fakeSeat.Anchored = true
+        fakeSeat.Transparency = 1
+        fakeSeat.CanCollide = false
+        fakeSeat.Position = hrp.Position - Vector3.new(0, 2.5, 0)
+        fakeSeat.Parent = workspace
+    end
+
+    char:MoveTo(fakeSeat.Position + Vector3.new(0, 2, 0))
+    task.wait(0.2)
+    hum.Sit = true
+end
+
+-- Khi ấn nút → kích hoạt bypass (một lần)
+button.MouseButton1Click:Connect(function()
+    applyBypass()
+end)
