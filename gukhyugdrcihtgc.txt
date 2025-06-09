@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.0",
+    SubTitle = "Version 4.1.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -3108,7 +3108,20 @@ end)
 
     Tabs.Misc:AddSection("↳ Server")
 
+Tabs.TpT:AddButton({
+    Title = "Bypass Revive",
+    Description = "This function can only be used once!",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/jggojdtivfsqrb/hgfhfdghsqqyuojcgop/refs/heads/main/alalalallalalalalalla"))()
+        end)
+    end
+})
 
+
+
+    Tabs.Misc:AddSection("↳ Visual")
     
     local fullBrightEnabled1 = false
     local autoNightLoop 
