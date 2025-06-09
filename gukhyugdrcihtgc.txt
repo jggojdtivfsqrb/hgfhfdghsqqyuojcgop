@@ -3108,7 +3108,7 @@ end)
 
     Tabs.Misc:AddSection("↳ Server")
 
-Tabs.TpT:AddButton({
+Tabs.Misc:AddButton({
     Title = "Bypass Revive",
     Description = "This function can only be used once!",
     Callback = function()
