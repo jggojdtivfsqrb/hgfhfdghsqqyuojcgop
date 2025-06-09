@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.0.9",
+    SubTitle = "Version 4.1.0",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1220,14 +1220,14 @@ do
 local auraScriptName = "AuraEffect" -- Tên giả định để tìm hiệu ứng, bạn có thể đổi tùy theo script tạo ra gì
 
 local auraToggle = Tabs.Ma:AddToggle("AuraToggle", {
-    Title = "Melee Aura V3",
+    Title = "Auto Swing V2",
     Default = false
 })
 
 auraToggle:OnChanged(function(Value)
     if Value then
         -- Bật: tải và chạy script từ link
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Shade-vex/Dead-Rails-V3/refs/heads/main/Melle-Aura.lua.txt"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/Auto-swing.txt"))()
     else
         -- Tắt: tìm và xóa hiệu ứng liên quan (tùy vào script tạo gì, bạn sửa lại nếu biết rõ hơn)
         local function tryDestroyIn(parent)
