@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.1",
+    SubTitle = "Version 4.1.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -26,7 +26,7 @@ local Tabs = {
     Player = Window:AddTab({ Title = "Player", Icon = "rbxassetid://121302760641013" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "rbxassetid://121302760641013" }),
     Settings = Window:AddTab({ Title = "Setting", Icon = "rbxassetid://121302760641013" }),
-}
+}  
 
 do
     local baseUrl = "https://raw.githubusercontent.com/Shade-vex/Hutao-hub-code-pro-mode/refs/heads/main/"
@@ -1184,10 +1184,111 @@ do
 
     Tabs.Ma:AddSection("↳ Melee")
 
+
+
+
+
+
+
+
+
+-- Dropdown với mức tốc độ mới (x10 → x5000)
+local speedDropdown = Tabs.Ma:AddDropdown("SwingSpeedDropdown", {
+    Title = "Swing Speed",
+    Values = {
+        "Normal",         -- x10
+        "Medium",           -- x50
+        "Fast",     -- x100
+        "Super Fast",     -- x500
+        "Ultimate Fast",  -- x1000
+        "God Attack"      -- x10000
+    },
+    Default = "Normal"
+})
+
+local auraToggle = Tabs.Ma:AddToggle("AuraToggle", {
+    Title = "Auto Swing V2",
+    Default = false
+})
+
+local autoSwingThread
+local meleeList = {
+    "Tomahawk",
+    "Shovel",
+    "Pickaxe",
+    "Cavalry Sword",
+    "Vampire Knife",
+    "Jade Sword",
+    "Excalibur"
+}
+
+-- Bảng delay tương ứng với tên hiển thị
+local speedDelays = {
+    ["Normal"] = 0.1,           -- x10
+    ["Medium"] = 0.02,            -- x50
+    ["Fast"] = 0.01,      -- x100
+    ["Super Fast"] = 0.002,     -- x500
+    ["Ultimate Fast"] = 0.001,  -- x1000
+    ["God Attack"] = 0.0001     -- x10000 (giảm nhẹ cho ổn định)
+}
+
+local function startAutoSwing()
+    autoSwingThread = task.spawn(function()
+        local rs = game:GetService("ReplicatedStorage")
+        local remote = rs:WaitForChild("Shared"):WaitForChild("Network")
+            :WaitForChild("RemoteEvent"):WaitForChild("SwingMelee")
+
+        while auraToggle.Value do
+            local char = game:GetService("Players").LocalPlayer.Character
+            local delay = speedDelays[speedDropdown.Value] or 0.1
+
+            for _, weaponName in ipairs(meleeList) do
+                local weapon = char and char:FindFirstChild(weaponName)
+                if weapon then
+                    local args = {
+                        weapon,
+                        1747381230.793685,
+                        Vector3.new(-0.7606407999992371, -0.5080273151397705, 0.4041457176208496)
+                    }
+
+                    task.defer(function()
+                        pcall(function()
+                            remote:FireServer(unpack(args))
+                        end)
+                    end)
+                end
+            end
+
+            task.wait(delay)
+        end
+    end)
+end
+
+local function stopAutoSwing()
+    if autoSwingThread then
+        task.cancel(autoSwingThread)
+        autoSwingThread = nil
+    end
+end
+
+auraToggle:OnChanged(function(Value)
+    if Value then
+        startAutoSwing()
+    else
+        stopAutoSwing()
+    end
+end)
+
+
+
+
+    Tabs.Ma:AddSection("↳ Musician")
+
+
     local autoClickConnection = nil
 
     local TacToggle = Tabs.Ma:AddToggle("TacToggle", {
-        Title = "Tool Auto Click",
+        Title = "Banjo Click",
         Default = false
     })
 
@@ -1208,46 +1309,6 @@ do
             end
         end
     end)
-
-
-
-
-
-
-
-
-
-local auraScriptName = "AuraEffect" -- Tên giả định để tìm hiệu ứng, bạn có thể đổi tùy theo script tạo ra gì
-
-local auraToggle = Tabs.Ma:AddToggle("AuraToggle", {
-    Title = "Auto Swing V2",
-    Default = false
-})
-
-auraToggle:OnChanged(function(Value)
-    if Value then
-        -- Bật: tải và chạy script từ link
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/Auto-swing.txt"))()
-    else
-        -- Tắt: tìm và xóa hiệu ứng liên quan (tùy vào script tạo gì, bạn sửa lại nếu biết rõ hơn)
-        local function tryDestroyIn(parent)
-            for _, obj in ipairs(parent:GetChildren()) do
-                if obj.Name:lower():find("aura") or obj.Name == auraScriptName then
-                    obj:Destroy()
-                end
-            end
-        end
-
-        pcall(function()
-            tryDestroyIn(game.CoreGui)
-            tryDestroyIn(game.Players.LocalPlayer:WaitForChild("PlayerGui"))
-            tryDestroyIn(game.Workspace)
-        end)
-    end
-end)
-
-
-
 
 
     Tabs.Ma:AddSection("↳ Auto Heal")
