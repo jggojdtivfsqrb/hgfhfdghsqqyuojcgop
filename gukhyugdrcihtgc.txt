@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.3",
+    SubTitle = "Version 4.1.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -68,6 +68,27 @@ do
             loadstring(game:HttpGet(AutoBondsURl))()
         end
     end)
+
+
+
+
+-- Tạo toggle Auto Bring Bond
+Tabs.FarT:AddToggle("AutoBringBond", {
+    Title = "Auto Bring Bond 70+",
+    Default = false
+}):OnChanged(function(enabled)
+    if enabled then
+        if not game.Players.LocalPlayer.Character:FindFirstChildOfClass("Seat") then
+            task.wait(1)
+            getgenv().bringitem = "Bond"
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Bond-Farm-Hutao.txt"))()
+        else
+            warn("Character is sitting. Script not activated.")
+        end
+    end
+end)
+
+
 
     Tabs.FarT:AddSection("↳ Win")
 
@@ -2042,6 +2063,18 @@ Tabs.TpT:AddButton({
 
 
 Tabs.TpT:AddSection("↳ Train")
+
+
+Tabs.TpT:AddButton({
+    Title = "Train Kill Aura",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/trainkill.lua.txt"))()
+        end)
+    end
+})
+
 
 Tabs.TpT:AddButton({
     Title = "TP To Train",
