@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.5",
+    SubTitle = "Version 4.1.6",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2822,7 +2822,37 @@ end
 
 
 
+-- Tạo toggle Auto Chat
+Tabs.Player:AddToggle("AutoChat", {
+    Title = "Praise Hutao Hub",
+    Default = false
+}):OnChanged(function(enabled)
+    getgenv().autoChatRunning = enabled
 
+    if enabled then
+        -- Tạo vòng lặp auto chat
+        task.spawn(function()
+            while getgenv().autoChatRunning do
+                -- Kiểm tra nhân vật còn tồn tại không
+                if not game.Players.LocalPlayer.Character then break end
+
+                -- Gửi tin nhắn
+                local TextChatService = game:GetService("TextChatService")
+                local function SendChatMessage(message)
+                    if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+                        local textChannel = TextChatService.TextChannels.RBXGeneral
+                        textChannel:SendAsync(message)
+                    else
+                        game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(message, "All")
+                    end
+                end
+
+                SendChatMessage("Hutao Hub script is the best!")
+                task.wait(30)
+            end
+        end)
+    end
+end)
 
 
 
