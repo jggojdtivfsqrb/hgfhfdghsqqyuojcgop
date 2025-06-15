@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.6",
+    SubTitle = "Version 4.1.7",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -74,7 +74,8 @@ do
 
 -- Tạo toggle Auto Bring Bond
 Tabs.FarT:AddToggle("AutoBringBond", {
-    Title = "Auto Bring Bond 70+",
+    Title = "Auto Bring Bond 100+",
+    Description = "Warning: Too fast bond farming speed may cause lag",
     Default = false
 }):OnChanged(function(enabled)
     if enabled then
