@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.8",
+    SubTitle = "Version 4.1.9",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -72,6 +72,8 @@ do
 
 
 
+local RunService = game:GetService("RunService")
+
 Tabs.FarT:AddToggle("AutoBringBond", {
     Title = "Auto Bring Bond 100+",
     Description = "Warning: Too fast bond farming speed may cause lag",
@@ -84,14 +86,15 @@ Tabs.FarT:AddToggle("AutoBringBond", {
         if not char:FindFirstChildOfClass("Seat") then
             getgenv().bringitem = "Bond"
 
-            -- Tải và chạy script nhẹ nhàng bằng thread riêng
+            -- Delay 1 frame sau toggle để tránh lag
+            RunService.RenderStepped:Wait()
+
             task.spawn(function()
                 local success, result = pcall(function()
                     return game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Bond-Farm-Hutao.txt")
                 end)
 
                 if success and result then
-                    -- Gọi loadstring bên trong pcall để tránh lỗi làm đứng game
                     pcall(function()
                         loadstring(result)()
                     end)
@@ -3984,4 +3987,6 @@ end)
            
 
               
+
+             
 
