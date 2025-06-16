@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.9",
+    SubTitle = "Version 4.2.0",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2078,7 +2078,28 @@ Tabs.TpT:AddButton({
 
 
 
+Tabs.TpT:AddButton({
+    Title = "TP To Final Destination V2",
+    Callback = function()
+        pcall(function()
+            -- Bước 1: Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Anbatokum"))()
 
+            -- Bước 2: Chờ 5 giây
+            task.wait(5)
+
+            -- Bước 3: Teleport nhân vật 2 lần liên tục
+            local player = game.Players.LocalPlayer
+            local char = player.Character or player.CharacterAdded:Wait()
+            local root = char:WaitForChild("HumanoidRootPart")
+            local target = CFrame.new(-350.6, 3.0, -49040.6)
+
+            root.CFrame = target
+            task.wait(0.1)
+            root.CFrame = target
+        end)
+    end
+})
 
 
 
