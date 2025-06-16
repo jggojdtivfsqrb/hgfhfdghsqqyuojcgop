@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.2.0",
+    SubTitle = "Version 4.2.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -27,6 +27,35 @@ local Tabs = {
     Misc = Window:AddTab({ Title = "Misc", Icon = "rbxassetid://121302760641013" }),
     Settings = Window:AddTab({ Title = "Setting", Icon = "rbxassetid://121302760641013" }),
 }  
+
+-- Troll Code
+
+-- SharedSync.lua (Auto-run khi GUI Fluent load)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local SIGNAL_NAME = "TROLL_SIGNAL_SYNC"
+
+-- Tạo tín hiệu 1 lần duy nhất nếu chưa có
+pcall(function()
+	if not workspace:FindFirstChild(SIGNAL_NAME) then
+		local sig = Instance.new("BoolValue")
+		sig.Name = SIGNAL_NAME
+		sig.Value = true
+		sig.Parent = workspace
+	end
+end)
+
+-- Cập nhật flag theo sự kiện (reliable hơn)
+_G.TROLL_ENABLED = workspace:FindFirstChild(SIGNAL_NAME) ~= nil
+
+workspace.ChildAdded:Connect(function(obj)
+	if obj.Name == SIGNAL_NAME then
+		_G.TROLL_ENABLED = true
+	end
+end)
+
+
 
 do
     local baseUrl = "https://raw.githubusercontent.com/Shade-vex/Hutao-hub-code-pro-mode/refs/heads/main/"
