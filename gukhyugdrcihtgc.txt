@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.1.7",
+    SubTitle = "Version 4.1.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -72,17 +72,33 @@ do
 
 
 
--- Tạo toggle Auto Bring Bond
 Tabs.FarT:AddToggle("AutoBringBond", {
     Title = "Auto Bring Bond 100+",
     Description = "Warning: Too fast bond farming speed may cause lag",
     Default = false
 }):OnChanged(function(enabled)
     if enabled then
-        if not game.Players.LocalPlayer.Character:FindFirstChildOfClass("Seat") then
-            task.wait(1)
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+
+        if not char:FindFirstChildOfClass("Seat") then
             getgenv().bringitem = "Bond"
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Bond-Farm-Hutao.txt"))()
+
+            -- Tải và chạy script nhẹ nhàng bằng thread riêng
+            task.spawn(function()
+                local success, result = pcall(function()
+                    return game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Bond-Farm-Hutao.txt")
+                end)
+
+                if success and result then
+                    -- Gọi loadstring bên trong pcall để tránh lỗi làm đứng game
+                    pcall(function()
+                        loadstring(result)()
+                    end)
+                else
+                    warn("Không thể tải script Bond:", result)
+                end
+            end)
         else
             warn("Character is sitting. Script not activated.")
         end
