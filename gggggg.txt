@@ -1139,7 +1139,7 @@ end)
     end)
 
     Tabs.Ma:AddSection("↳ Kill Aura")
-    if game.PlaceId == 9377039667 then
+    if game.PlaceId == 99125541611896 then
         Tabs.Ma:AddParagraph({
             Title = "Note",
             Content = "Join main game to use this feature!"
@@ -1972,7 +1972,7 @@ end)
 
 
 
-if game.PlaceId == 9377039667 then
+if game.PlaceId == 99125541611896 then
     Tabs.TpT:AddParagraph({
         Title = "Note",
         Content = "Use these features with care!"
