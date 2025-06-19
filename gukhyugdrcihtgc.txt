@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.2.2",
+    SubTitle = "Version 4.2.3",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -19,6 +19,7 @@ local Window = Fluent:CreateWindow({
 
 -- Tabs
 local Tabs = {
+    Dev = Window:AddTab({ Title = "About", Icon = "rbxassetid://121302760641013"}),
     FarT = Window:AddTab({ Title = "Farm", Icon = "rbxassetid://121302760641013" }),
     Ma = Window:AddTab({ Title = "Main", Icon = "rbxassetid://121302760641013" }),
     Ite = Window:AddTab({ Title = "Items", Icon = "rbxassetid://121302760641013" }),
@@ -27,6 +28,67 @@ local Tabs = {
     Misc = Window:AddTab({ Title = "Misc", Icon = "rbxassetid://121302760641013" }),
     Settings = Window:AddTab({ Title = "Setting", Icon = "rbxassetid://121302760641013" }),
 }  
+
+
+-- Tabs.Dev
+
+local Options = Fluent.Options
+
+
+    Tabs.Dev:AddParagraph({
+        Title = "Note",
+        Content = "Thank you for using the script!"
+    })
+
+    Tabs.Dev:AddSection("↳ Links")
+
+    Tabs.Dev:AddButton({
+        Title = "Discord",
+        Description = "Copy the link to join the discord!",
+        Callback = function()
+            setclipboard("https://discord.gg/P46J9jgf")
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Successfully copied to the clipboard",
+                SubContent = "", -- Optional
+                Duration = 3 
+            })
+        end
+    })
+
+
+
+    Tabs.Dev:AddButton({
+        Title = "Youtube",
+        Description = "Copy link to Subscribe to Youtube channel!",
+        Callback = function()
+            setclipboard("https://www.youtube.com/@SLKgamingSSR")
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Successfully copied to the clipboard!",
+                SubContent = "", -- Optional
+                Duration = 3 
+            })
+        end
+    })
+
+
+    Tabs.Dev:AddButton({
+        Title = "Facebook",
+        Description = "Copy link to join facebook group!",
+        Callback = function()
+            setclipboard("https://www.facebook.com/groups/1180845463307087/?ref=share&mibextid=NSMWBT")
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Successfully copied to the clipboard!",
+                SubContent = "", -- Optional
+                Duration = 3 
+            })
+        end
+    })
+
+
+-- Tabs.Farm
 
 
 do
