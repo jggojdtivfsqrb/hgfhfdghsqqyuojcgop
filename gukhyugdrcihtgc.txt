@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.2.6",
+    SubTitle = "Version 4.2.7",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1286,6 +1286,9 @@ end)
         })
     end
 
+
+
+
     Tabs.Ma:AddSection("↳ Melee")
 
 
@@ -1335,7 +1338,7 @@ local speedDelays = {
     ["Super Fast"] = 0.002,     -- x500
     ["Ultimate Fast"] = 0.001,  -- x1000
     ["God Attack"] = 0.0001,     -- x10000 (giảm nhẹ cho ổn định)
-    ["Admin Power"] = 0.00001     -- x100000
+    ["Admin Power"] = 0     -- x1000000000000000000000000000000
 }
 
 local function startAutoSwing()
@@ -4059,6 +4062,14 @@ end)
            
 
               
+
+
+
+
+
+
+
+
 
              
 
