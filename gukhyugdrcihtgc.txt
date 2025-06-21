@@ -2435,6 +2435,22 @@ Tabs.TpT:AddButton({
 
 
 
+Tabs.TpT:AddSection("↳ Special")
+
+
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+Tabs.TpT:AddButton({
+    Title = "Server Unicorn",
+    Callback = function()
+        pcall(function()
+            TeleportService:Teleport(96831577561553, Players.LocalPlayer)
+        end)
+    end
+})
+
+
 
 ---Player tab
 
