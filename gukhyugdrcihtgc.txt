@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.2.8",
+    SubTitle = "Version 4.2.9",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2450,7 +2450,19 @@ Tabs.TpT:AddButton({
     end
 })
 
+--- Việt Nam
 
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+Tabs.TpT:AddButton({
+    Title = "Server Test [BETA]",
+    Callback = function()
+        pcall(function()
+            TeleportService:Teleport(96831577561553, Players.LocalPlayer)
+        end)
+    end
+})
 
 ---Player tab
 
