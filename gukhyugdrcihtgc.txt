@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.3.0",
+    SubTitle = "Version 4.3.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2438,6 +2438,17 @@ Tabs.TpT:AddButton({
     Title = "TP To Farm",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Shade-vex/KJ/refs/heads/main/tptofarm.lua.txt"))()
         end)
