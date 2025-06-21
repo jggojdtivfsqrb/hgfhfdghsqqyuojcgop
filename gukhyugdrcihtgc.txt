@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.2.9",
+    SubTitle = "Version 4.3.0",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2432,8 +2432,30 @@ Tabs.TpT:AddButton({
     end
 })
 
+Tabs.TpT:AddSection("↳ ???")
+
+Tabs.TpT:AddButton({
+    Title = "TP To Farm",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Shade-vex/KJ/refs/heads/main/tptofarm.lua.txt"))()
+        end)
+    end
+})
 
 
+
+
+Tabs.TpT:AddButton({
+    Title = "TP To Bank",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Shade-vex/KJ/refs/heads/main/Banktp.txt"))()
+        end)
+    end
+})
 
 Tabs.TpT:AddSection("↳ Special")
 
