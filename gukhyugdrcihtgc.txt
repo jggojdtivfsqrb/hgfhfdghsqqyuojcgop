@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.3.1",
+    SubTitle = "Version 4.3.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2145,7 +2145,7 @@ Tabs.TpT:AddButton({
 
 
 Tabs.TpT:AddButton({
-    Title = "TP To Final Destination V2",
+    Title = "TP To Final Destination [V2]",
     Callback = function()
         pcall(function()
             -- Bước 1: Tải và chạy script từ link
@@ -2467,6 +2467,19 @@ Tabs.TpT:AddButton({
         end)
     end
 })
+
+
+
+Tabs.TpT:AddButton({
+    Title = "TP To Camp",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/tptooutlaw.txt"))()
+        end)
+    end
+})
+
 
 Tabs.TpT:AddSection("↳ Special")
 
