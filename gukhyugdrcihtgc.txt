@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.3.4",
+    SubTitle = "Version 4.3.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2424,6 +2424,8 @@ Tabs.TpT:AddButton({
     end
 })
 
+
+
 Tabs.TpT:AddSection("↳ ???")
 
 Tabs.TpT:AddButton({
@@ -2472,6 +2474,18 @@ Tabs.TpT:AddButton({
     end
 })
 
+
+Tabs.TpT:AddSection("↳ Horses")
+
+Tabs.TpT:AddButton({
+    Title = "TP To War",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Tp-to-Ngua.txt"))()
+        end)
+    end
+})
 
 Tabs.TpT:AddSection("↳ Special")
 
