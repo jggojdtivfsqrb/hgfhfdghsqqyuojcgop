@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.3.3",
+    SubTitle = "Version 4.3.4",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1303,13 +1303,9 @@ end)
 local speedDropdown = Tabs.Ma:AddDropdown("SwingSpeedDropdown", {
     Title = "Swing Speed",
     Values = {
-        "Normal",         -- x10
-        "Medium",           -- x50
-        "Fast",     -- x100
-        "Super Fast",     -- x500
-        "Ultimate Fast",  -- x1000
-        "God Attack",      -- x10000
-        "Admin Power"      -- x100000
+        "Slow",
+        "Fast",
+        "Max"
     },
     Default = "Normal"
 })
@@ -1332,13 +1328,9 @@ local meleeList = {
 
 -- Bảng delay tương ứng với tên hiển thị
 local speedDelays = {
-    ["Normal"] = 0.1,           -- x10
-    ["Medium"] = 0.02,            -- x50
-    ["Fast"] = 0.01,      -- x100
-    ["Super Fast"] = 0.002,     -- x500
-    ["Ultimate Fast"] = 0.001,  -- x1000
-    ["God Attack"] = 0.0001,     -- x10000 (giảm nhẹ cho ổn định)
-    ["Admin Power"] = 0     -- x1000000000000000000000000000000
+    ["Slow"] = 0.00001,
+    ["Fast"] = 0.0000000001,
+    ["Max"] = 0.00000000000001
 }
 
 local function startAutoSwing()
@@ -4131,19 +4123,3 @@ Button.InputChanged:Connect(function(input)
         OnDrag(input)
     end
 end)
-
-
-           
-
-              
-
-
-
-
-
-
-
-
-
-             
-
