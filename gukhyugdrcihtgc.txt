@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.3.6",
+    SubTitle = "Version 4.3.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2499,8 +2499,6 @@ Tabs.TpT:AddButton({
     end
 })
 
-
-
 Tabs.TpT:AddButton({
     Title = "TP To Death",
     Callback = function()
@@ -2511,7 +2509,25 @@ Tabs.TpT:AddButton({
     end
 })
 
+Tabs.TpT:AddButton({
+    Title = "TP To Famine",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Tp-To-Ngua3.txt"))()
+        end)
+    end
+})
 
+Tabs.TpT:AddButton({
+    Title = "TP To Pestilence",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/Tp-to-Ngua4.lua"))()
+        end)
+    end
+})
 
 Tabs.TpT:AddButton({
     Title = "TP To Unicorn",
