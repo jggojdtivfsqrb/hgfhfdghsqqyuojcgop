@@ -3082,9 +3082,17 @@ Tabs.Player:AddToggle("AutoChat", {
     end
 end)
 
+    Tabs.Player:AddSection("↳ Troll")
 
-
-
+Tabs.Player:AddButton({
+    Title = "Cool Sus Tool",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/OMG/refs/heads/main/Sus.txt"))()
+        end)
+    end
+})
 
 
 -- Misc tab
