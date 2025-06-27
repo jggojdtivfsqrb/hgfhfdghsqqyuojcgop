@@ -1759,7 +1759,8 @@ local ammoConnection = nil
 
 local TacToggle = Tabs.Ite:AddToggle("TacToggle", {
     Title = "Auto Collect Ammo(s)",
-    Default = false
+    Default = false,
+    Flag = "AutoAmmo" -- <-- Cái này để Fluent lưu trạng thái toggle
 })
 
 TacToggle:OnChanged(function(Value)
@@ -1782,7 +1783,6 @@ TacToggle:OnChanged(function(Value)
         end
     end
 
-    -- Danh sách tên ammo cần nhặt
     local ammoNames = {
         ["ShotgunShells"] = true,
         ["RifleAmmo"] = true,
