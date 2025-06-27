@@ -1757,13 +1757,12 @@ end)
 
 local ammoConnection = nil
 
-local TacToggle = Tabs.Ite:AddToggle("TacToggle", {
+local AmmoToggle = Tabs.Ite:AddToggle("AmmoToggle", {
     Title = "Auto Collect Ammo(s)",
-    Default = false,
-    Flag = "AutoAmmo" -- <-- Cái này để Fluent lưu trạng thái toggle
+    Default = false
 })
 
-TacToggle:OnChanged(function(Value)
+AmmoToggle:OnChanged(function(Value)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -1783,6 +1782,7 @@ TacToggle:OnChanged(function(Value)
         end
     end
 
+    -- Danh sách tên ammo cần nhặt
     local ammoNames = {
         ["ShotgunShells"] = true,
         ["RifleAmmo"] = true,
@@ -1792,7 +1792,7 @@ TacToggle:OnChanged(function(Value)
 
     if Value and activateRemote then
         ammoConnection = task.spawn(function()
-            while TacToggle.Value do
+            while AmmoToggle.Value do
                 local closestAmmo = nil
                 local shortestDist = 50
 
