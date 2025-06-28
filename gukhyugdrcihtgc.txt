@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.5.5",
+    SubTitle = "Version 4.5.6",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1968,111 +1968,103 @@ end)
 
 
 
-if game.PlaceId == 116495829188952 then
-    Tabs.TpT:AddParagraph({
-        Title = "Note",
-        Content = "Use these features with care!"
-    })
-else
-    Tabs.TpT:AddSection("↳ End Game")
-    
-    -- Khởi tạo Toggle
-    local CtimeToggle = Tabs.TpT:AddToggle("CtimeToggle", {
-        Title = "Countdown",
-        Description = "10 minutes countdown",
-        Default = false
-    })
-    
-    -- Tạo GUI
-    local CountdownGui = Instance.new("ScreenGui")
-    CountdownGui.Name = "CountdownUI"
-    CountdownGui.ResetOnSpawn = false
-    CountdownGui.IgnoreGuiInset = true
-    CountdownGui.Parent = game:GetService("CoreGui")
-    
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 150, 0, 50)
-    Frame.Position = UDim2.new(0.5, -75, 0.15, 0)
-    Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Frame.BackgroundTransparency = 0.1
-    Frame.BorderSizePixel = 0
-    Frame.AnchorPoint = Vector2.new(0.5, 0)
-    Frame.Active = true
-    Frame.Draggable = true
-    Frame.Parent = CountdownGui
-    Frame.Visible = false
-    
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 10)
-    UICorner.Parent = Frame
-    
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Color = Color3.fromRGB(255, 255, 255)
-    UIStroke.Thickness = 1.5
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Parent = Frame
-    
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 1, 0)
-    Label.BackgroundTransparency = 1
-    Label.Text = "10:00"
-    Label.Font = Enum.Font.FredokaOne
-    Label.TextScaled = true
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Parent = Frame
-    
-    local countdownTime = 10 * 60 -- 10 phút
-    local running = false
-    local lastTimeChecked = os.time()
-    local pausedTime = nil
+Tabs.TpT:AddSection("↳ End Game")
 
-    local function formatTime(seconds)
-        local minutes = math.floor(seconds / 60)
-        local secs = seconds % 60
-        return string.format("%02d:%02d", minutes, secs)
-    end
-    
-    -- Cập nhật GUI
-    local function updateCountdown()
-        Label.Text = formatTime(countdownTime)
-    end
+-- Khởi tạo Toggle
+local CtimeToggle = Tabs.TpT:AddToggle("CtimeToggle", {
+    Title = "Countdown",
+    Description = "10 minutes countdown",
+    Default = false
+})
 
-    -- Hàm chạy đếm ngược
-    task.spawn(function()
-        while countdownTime > 0 do
-            task.wait(1)
-            if running then
-                local now = os.time()
-                local delta = now - lastTimeChecked
-                countdownTime -= delta
-                lastTimeChecked = now
-                if countdownTime < 0 then
-                    countdownTime = 0
-                end
-                updateCountdown()
-            end
-        end
-    end)
+-- Tạo GUI
+local CountdownGui = Instance.new("ScreenGui")
+CountdownGui.Name = "CountdownUI"
+CountdownGui.ResetOnSpawn = false
+CountdownGui.IgnoreGuiInset = true
+CountdownGui.Parent = game:GetService("CoreGui")
 
-    -- Toggle bật/tắt
-    CtimeToggle:OnChanged(function(Value)
-        Frame.Visible = Value
-        if Value then
-            if pausedTime then
-                -- Nếu đã pause, cập nhật thời gian bị trôi đi
-                local now = os.time()
-                local delta = now - pausedTime
-                countdownTime -= delta
-                pausedTime = nil
-            end
-            lastTimeChecked = os.time()
-            running = true
-        else
-            running = false
-            pausedTime = os.time() -- Lưu lại thời gian khi tắt đi
-        end
-    end)
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 150, 0, 50)
+Frame.Position = UDim2.new(0.5, -75, 0.15, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BackgroundTransparency = 0.1
+Frame.BorderSizePixel = 0
+Frame.AnchorPoint = Vector2.new(0.5, 0)
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = CountdownGui
+Frame.Visible = false
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = Frame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+UIStroke.Thickness = 1.5
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Parent = Frame
+
+local Label = Instance.new("TextLabel")
+Label.Size = UDim2.new(1, 0, 1, 0)
+Label.BackgroundTransparency = 1
+Label.Text = "10:00"
+Label.Font = Enum.Font.FredokaOne
+Label.TextScaled = true
+Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+Label.Parent = Frame
+
+local countdownTime = 10 * 60 -- 10 phút
+local running = false
+local lastTimeChecked = os.time()
+local pausedTime = nil
+
+local function formatTime(seconds)
+    local minutes = math.floor(seconds / 60)
+    local secs = seconds % 60
+    return string.format("%02d:%02d", minutes, secs)
 end
+
+-- Cập nhật GUI
+local function updateCountdown()
+    Label.Text = formatTime(countdownTime)
+end
+
+-- Hàm chạy đếm ngược
+task.spawn(function()
+    while countdownTime > 0 do
+        task.wait(1)
+        if running then
+            local now = os.time()
+            local delta = now - lastTimeChecked
+            countdownTime -= delta
+            lastTimeChecked = now
+            if countdownTime < 0 then
+                countdownTime = 0
+            end
+            updateCountdown()
+        end
+    end
+end)
+
+-- Toggle bật/tắt
+CtimeToggle:OnChanged(function(Value)
+    Frame.Visible = Value
+    if Value then
+        if pausedTime then
+            local now = os.time()
+            local delta = now - pausedTime
+            countdownTime -= delta
+            pausedTime = nil
+        end
+        lastTimeChecked = os.time()
+        running = true
+    else
+        running = false
+        pausedTime = os.time()
+    end
+end)
 
 
 
