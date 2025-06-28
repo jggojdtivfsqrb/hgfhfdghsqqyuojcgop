@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.5.2",
+    SubTitle = "Version 4.5.4",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2486,6 +2486,19 @@ Tabs.TpT:AddButton({
         end)
     end
 })
+
+
+
+Tabs.TpT:AddButton({
+    Title = "Bypass Sit Turret",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/turretbypass.lua"))()
+        end)
+    end
+})
+
 
 Tabs.TpT:AddSection("↳ Horses")
 
