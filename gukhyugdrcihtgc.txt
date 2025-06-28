@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.5.4",
+    SubTitle = "Version 4.5.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1138,153 +1138,154 @@ end)
         toggleHitbox(Value)
     end)
 
-    Tabs.Ma:AddSection("↳ Kill Aura")
-    if game.PlaceId == 116495829188952 then
-        Tabs.Ma:AddParagraph({
-            Title = "Note",
-            Content = "Join main game to use this feature!"
-        })
-    else
-        local Players = game:GetService("Players")
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local workspace = game.Workspace
+Tabs.Ma:AddSection("↳ Kill Aura")
 
-        local ShootRemote = ReplicatedStorage.Remotes.Weapon.Shoot
-        local ReloadRemote = ReplicatedStorage.Remotes.Weapon.Reload
-        local Camera = workspace.CurrentCamera or workspace:WaitForChild("Camera")
-        local LocalPlayer = Players.LocalPlayer
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game.Workspace
 
-        local AutoHeadshotEnabled = false
-        local AutoReloadEnabled = true
-        local GunAuraAllMobs = true
-        local SEARCH_RADIUS = 1000
-        local HEADSHOT_DELAY = 0.1
-        local killAuraCoroutine = nil
+local ShootRemote = ReplicatedStorage.Remotes.Weapon.Shoot
+local ReloadRemote = ReplicatedStorage.Remotes.Weapon.Reload
+local Camera = workspace.CurrentCamera or workspace:WaitForChild("Camera")
+local LocalPlayer = Players.LocalPlayer
 
-        local Weapons = {
-            ["Revolver"] = true,
-            ["Rifle"] = true,
-            ["Sawed-Off Shotgun"] = true,
-            ["Bolt Action Rifle"] = true,
-            ["Navy Revolver"] = true,
-            ["Mauser"] = true,
-            ["Shotgun"] = true
-        }
+local AutoHeadshotEnabled = false
+local AutoReloadEnabled = true
+local GunAuraAllMobs = true
+local SEARCH_RADIUS = 1000
+local HEADSHOT_DELAY = 0.1
+local killAuraCoroutine = nil
 
-        local function getEquippedSupportedWeapon()
-            local char = LocalPlayer.Character
-            if not char then return nil end
-            for name, _ in pairs(Weapons) do
-                local tool = char:FindFirstChild(name)
-                if tool then
-                    return tool
-                end
-            end
-            return nil
+local Weapons = {
+    ["Revolver"] = true,
+    ["Rifle"] = true,
+    ["Sawed-Off Shotgun"] = true,
+    ["Bolt Action Rifle"] = true,
+    ["Navy Revolver"] = true,
+    ["Mauser"] = true,
+    ["Shotgun"] = true,
+    ["Crossbow"] = true,
+    ["Electrocutioner"] = true,
+    ["Blunderbuss"] = true,
+    ["Elephant Rifle"] = true
+}
+
+local function getEquippedSupportedWeapon()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    for name, _ in pairs(Weapons) do
+        local tool = char:FindFirstChild(name)
+        if tool then
+            return tool
         end
+    end
+    return nil
+end
 
-        local function isNPC(obj)
-            if not obj:IsA("Model") then return false end
-            if workspace:FindFirstChild("Horse") and obj:IsDescendantOf(workspace.Horse) then
-                return false
+local function isNPC(obj)
+    if not obj:IsA("Model") then return false end
+    if workspace:FindFirstChild("Horse") and obj:IsDescendantOf(workspace.Horse) then
+        return false
+    end
+    local hum = obj:FindFirstChildOfClass("Humanoid")
+    if not hum or hum.Health <= 0 then return false end
+    return obj:FindFirstChild("Head")
+        and obj:FindFirstChild("HumanoidRootPart")
+        and not Players:GetPlayerFromCharacter(obj)
+end
+
+local function findAllNPCsInRange()
+    local npcs = {}
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if isNPC(obj) then
+            local head = obj:FindFirstChild("Head")
+            local dist = (head.Position - Camera.CFrame.Position).Magnitude
+            if dist <= SEARCH_RADIUS then
+                table.insert(npcs, {
+                    model = obj,
+                    hum = obj.Humanoid,
+                    head = head
+                })
             end
-            local hum = obj:FindFirstChildOfClass("Humanoid")
-            if not hum or hum.Health <= 0 then return false end
-            return obj:FindFirstChild("Head")
-                and obj:FindFirstChild("HumanoidRootPart")
-                and not Players:GetPlayerFromCharacter(obj)
         end
+    end
+    table.sort(npcs, function(a, b)
+        return (a.head.Position - Camera.CFrame.Position).Magnitude < (b.head.Position - Camera.CFrame.Position).Magnitude
+    end)
+    return npcs
+end
 
-        local function findAllNPCsInRange()
-            local npcs = {}
-            for _, obj in ipairs(workspace:GetDescendants()) do
-                if isNPC(obj) then
-                    local head = obj:FindFirstChild("Head")
-                    local dist = (head.Position - Camera.CFrame.Position).Magnitude
-                    if dist <= SEARCH_RADIUS then
-                        table.insert(npcs, {
-                            model = obj,
-                            hum = obj.Humanoid,
-                            head = head
-                        })
+local function autoHeadshotLoop()
+    while AutoHeadshotEnabled do
+        local tool = getEquippedSupportedWeapon()
+        if tool then
+            local npcs = GunAuraAllMobs and findAllNPCsInRange() or {}
+            for _, npc in ipairs(npcs) do
+                if npc.hum and npc.hum.Health > 0 then
+                    local pelletTable = {}
+                    if tool.Name:lower():find("shotgun") then
+                        for i = 1, 6 do
+                            pelletTable[tostring(i)] = npc.hum
+                        end
+                    else
+                        pelletTable["1"] = npc.hum
                     end
-                end
-            end
-            table.sort(npcs, function(a, b)
-                return (a.head.Position - Camera.CFrame.Position).Magnitude < (b.head.Position - Camera.CFrame.Position).Magnitude
-            end)
-            return npcs
-        end
-
-        local function autoHeadshotLoop()
-            while AutoHeadshotEnabled do
-                local tool = getEquippedSupportedWeapon()
-                if tool then
-                    local npcs = GunAuraAllMobs and findAllNPCsInRange() or {}
-                    for _, npc in ipairs(npcs) do
-                        if npc.hum and npc.hum.Health > 0 then
-                            local pelletTable = {}
-                            if tool.Name:lower():find("shotgun") then
-                                for i = 1, 6 do
-                                    pelletTable[tostring(i)] = npc.hum
-                                end
-                            else
-                                pelletTable["1"] = npc.hum
-                            end
-                            local shootArgs = {
-                                workspace:GetServerTimeNow(),
-                                tool,
-                                CFrame.new(npc.head.Position + Vector3.new(0, 1.5, 0), npc.head.Position),
-                                pelletTable
-                            }
-                            local success, err = pcall(function()
-                                ShootRemote:FireServer(unpack(shootArgs))
-                            end)
-                            if not success then
-                                warn("[Hutao hub] Failed to fire shot: " .. tostring(err))
-                            end
-                            if AutoReloadEnabled then
-                                success, err = pcall(function()
-                                    ReloadRemote:FireServer(workspace:GetServerTimeNow(), tool)
-                                end)
-                                if not success then
-                                    warn("[Hutao hub] Failed to reload: " .. tostring(err))
-                                end
-                            end
+                    local shootArgs = {
+                        workspace:GetServerTimeNow(),
+                        tool,
+                        CFrame.new(npc.head.Position + Vector3.new(0, 1.5, 0), npc.head.Position),
+                        pelletTable
+                    }
+                    local success, err = pcall(function()
+                        ShootRemote:FireServer(unpack(shootArgs))
+                    end)
+                    if not success then
+                        warn("[Hutao hub] Failed to fire shot: " .. tostring(err))
+                    end
+                    if AutoReloadEnabled then
+                        success, err = pcall(function()
+                            ReloadRemote:FireServer(workspace:GetServerTimeNow(), tool)
+                        end)
+                        if not success then
+                            warn("[Hutao hub] Failed to reload: " .. tostring(err))
                         end
                     end
                 end
-                task.wait(HEADSHOT_DELAY)
             end
         end
-
-        local GunKillAura = Tabs.Ma:AddToggle("GunKillAura", {Title = "Gun Kill Aura", Description = "Must hold gun.", Default = false })
-
-        GunKillAura:OnChanged(function(Value)
-            AutoHeadshotEnabled = Value
-            if Value then
-                if not killAuraCoroutine then
-                    killAuraCoroutine = task.spawn(autoHeadshotLoop)
-                end
-            else
-                AutoHeadshotEnabled = false
-                -- Coroutine will stop due to AutoHeadshotEnabled being false
-            end
-        end)
-
-        local GunAuraRadius = Tabs.Ma:AddSlider("GunAuraRadius", {
-            Title = "Kill Aura Radius",
-            Description = "Adjust the attack range.",
-            Default = 1000,
-            Min = 100,
-            Max = 2000,
-            Rounding = 1,
-            Callback = function(Value)
-                local radius = tonumber(Value)
-                SEARCH_RADIUS = radius or 1000 -- Fallback to default if conversion fails
-            end
-        })
+        task.wait(HEADSHOT_DELAY)
     end
+end
+
+local GunKillAura = Tabs.Ma:AddToggle("GunKillAura", {
+    Title = "Gun Kill Aura",
+    Description = "Must hold gun.",
+    Default = false
+})
+
+GunKillAura:OnChanged(function(Value)
+    AutoHeadshotEnabled = Value
+    if Value then
+        if not killAuraCoroutine then
+            killAuraCoroutine = task.spawn(autoHeadshotLoop)
+        end
+    else
+        AutoHeadshotEnabled = false
+    end
+end)
+
+local GunAuraRadius = Tabs.Ma:AddSlider("GunAuraRadius", {
+    Title = "Kill Aura Radius",
+    Description = "Adjust the attack range.",
+    Default = 1000,
+    Min = 100,
+    Max = 2000,
+    Rounding = 1,
+    Callback = function(Value)
+        local radius = tonumber(Value)
+        SEARCH_RADIUS = radius or 1000
+    end
+})
 
 
 
