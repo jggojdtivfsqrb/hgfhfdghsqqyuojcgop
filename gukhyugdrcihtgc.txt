@@ -1829,12 +1829,12 @@ end)
 
 local bondConnection = nil
 
-local TacToggle = Tabs.Ite:AddToggle("TacToggle", {
+local Bond1Toggle = Tabs.Ite:AddToggle("Bond1Toggle", {
     Title = "Auto Collect Bond(s)",
     Default = false
 })
 
-TacToggle:OnChanged(function(Value)
+Bond1Toggle:OnChanged(function(Value)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -1856,7 +1856,7 @@ TacToggle:OnChanged(function(Value)
 
     if Value and activateRemote then
         bondConnection = task.spawn(function()
-            while TacToggle.Value do
+            while Bond1Toggle.Value do
                 local closestBond = nil
                 local shortestDist = 50
 
