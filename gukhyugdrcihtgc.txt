@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.5.6",
+    SubTitle = "Version 4.5.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2816,8 +2816,6 @@ local Camera = workspace.CurrentCamera
 local flying = false
 local flySpeed = 50
 local bodyVelocity, bodyGyro, renderConn
-local inputFlags = { forward=false, back=false, left=false, right=false, up=false, down=false }
-local flyControls -- UI container
 
 -- Function: Start Flying
 local function startFlying()
@@ -2826,7 +2824,7 @@ local function startFlying()
 	local HRP = character:WaitForChild("HumanoidRootPart")
 
 	local seat = humanoid.SeatPart
-	local attachPart = seat or HRP  -- Nếu đang ngồi thì dùng ghế làm trung tâm bay
+	local attachPart = seat or HRP
 
 	-- Body movers
 	bodyVelocity = Instance.new("BodyVelocity")
@@ -2841,70 +2839,41 @@ local function startFlying()
 
 	humanoid:ChangeState(Enum.HumanoidStateType.Physics)
 
-	-- RenderStepped connection
+	-- Movement logic
 	renderConn = RunService.RenderStepped:Connect(function()
 		if attachPart and Camera then
-			local dir = Vector3.zero
 			local camCF = Camera.CFrame
-			if inputFlags.forward then dir += camCF.LookVector end
-			if inputFlags.back then dir -= camCF.LookVector end
-			if inputFlags.left then dir -= camCF.RightVector end
-			if inputFlags.right then dir += camCF.RightVector end
-			if inputFlags.up then dir += Vector3.new(0, 1, 0) end
-			if inputFlags.down then dir -= Vector3.new(0, 1, 0) end
-			if dir.Magnitude > 0 then dir = dir.Unit end
-			bodyVelocity.Velocity = dir * flySpeed
+			local moveDir = humanoid.MoveDirection
+
+			local moveVec = Vector3.zero
+
+			if moveDir.Magnitude > 0 then
+				-- Dựng vector bay theo hướng nhìn
+				local forward = camCF.LookVector
+				local flatForward = Vector3.new(forward.X, 0, forward.Z).Unit
+				local verticalInfluence = forward.Unit.Y
+
+				-- Xác định xem đang đi tiến hay lùi
+				local movingForward = flatForward:Dot(moveDir.Unit) > 0.1
+				local movingBackward = flatForward:Dot(moveDir.Unit) < -0.1
+
+				local yVelocity = 0
+
+				-- Nếu đang đi tiến hoặc lùi, áp dụng hướng nhìn để tăng giảm độ cao
+				if movingForward then
+					yVelocity = verticalInfluence
+				elseif movingBackward then
+					yVelocity = -verticalInfluence
+				end
+
+				-- Kết hợp chuyển động ngang + dọc
+				moveVec = Vector3.new(moveDir.X, yVelocity, moveDir.Z).Unit
+			end
+
+			bodyVelocity.Velocity = moveVec * flySpeed
 			bodyGyro.CFrame = camCF
 		end
 	end)
-
-	-- UI
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "FlyScreenGui"
-	screenGui.ResetOnSpawn = false
-	screenGui.Parent = player:WaitForChild("PlayerGui")
-
-	flyControls = Instance.new("Frame", screenGui)
-	flyControls.BackgroundTransparency = 1
-	flyControls.Size = UDim2.new(1, 0, 1, 0)
-
-	local function createButton(name, text, pos, size)
-		local btn = Instance.new("TextButton")
-		btn.Name = name
-		btn.Text = text
-		btn.Size = size
-		btn.Position = pos
-		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		btn.Font = Enum.Font.GothamBold
-		btn.TextScaled = true
-		btn.BackgroundTransparency = 0.2
-		btn.Parent = flyControls
-		local corner = Instance.new("UICorner", btn)
-		corner.CornerRadius = UDim.new(0, 12)
-		return btn
-	end
-
-	local dpad = UDim2.new(0, 60, 0, 60)
-	local forwardBtn = createButton("Forward", "↑", UDim2.new(0, 70, 1, -190), dpad)
-	local backBtn = createButton("Back", "↓", UDim2.new(0, 70, 1, -70), dpad)
-	local leftBtn = createButton("Left", "←", UDim2.new(0, 10, 1, -130), dpad)
-	local rightBtn = createButton("Right", "→", UDim2.new(0, 130, 1, -130), dpad)
-	local upBtn = createButton("Up", "Up", UDim2.new(1, -110, 1, -190), dpad)
-	local downBtn = createButton("Down", "Down", UDim2.new(1, -110, 1, -70), dpad)
-
-	local function addTouchEvents(button, flag)
-		button.MouseButton1Down:Connect(function() inputFlags[flag] = true end)
-		button.MouseButton1Up:Connect(function() inputFlags[flag] = false end)
-		button.MouseLeave:Connect(function() inputFlags[flag] = false end)
-	end
-
-	addTouchEvents(forwardBtn, "forward")
-	addTouchEvents(backBtn, "back")
-	addTouchEvents(leftBtn, "left")
-	addTouchEvents(rightBtn, "right")
-	addTouchEvents(upBtn, "up")
-	addTouchEvents(downBtn, "down")
 
 	flying = true
 end
@@ -2917,9 +2886,6 @@ local function stopFlying()
 	if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
 	if bodyGyro then bodyGyro:Destroy() bodyGyro = nil end
 
-	local gui = player:FindFirstChild("PlayerGui"):FindFirstChild("FlyScreenGui")
-	if gui then gui:Destroy() end
-
 	-- Fix: Khôi phục trạng thái nhân vật
 	local character = player.Character
 	if character then
@@ -2931,7 +2897,7 @@ local function stopFlying()
 end
 
 -- Auto handle respawn
-player.CharacterAdded:Connect(function()
+Players.LocalPlayer.CharacterAdded:Connect(function()
 	if flying then
 		task.wait(1)
 		startFlying()
