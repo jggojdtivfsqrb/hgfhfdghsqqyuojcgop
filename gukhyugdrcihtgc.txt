@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.5.8",
+    SubTitle = "Version 4.5.9",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -3068,6 +3068,18 @@ Tabs.Player:AddToggle("AutoChat", {
     end
 end)
 
+
+
+
+Tabs.Player:AddButton({
+    Title = "Get Fake Guns",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/FakeGun.lua"))()
+        end)
+    end
+})
 
 -- Misc tab
 
