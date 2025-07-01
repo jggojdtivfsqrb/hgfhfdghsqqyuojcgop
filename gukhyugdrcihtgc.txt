@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.6.4",
+    SubTitle = "Version 4.6.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2888,9 +2888,9 @@ do
 
 
 
-Tabs.TpT:AddSection("↳ TP Flying")
+Tabs.Player:AddSection("↳ TP Flying")
 
-Tabs.TpT:AddButton({
+Tabs.Player:AddButton({
     Title = "Stop Flying",
     Callback = function()
         pcall(function()
@@ -2902,7 +2902,7 @@ Tabs.TpT:AddButton({
 
 
 
-Tabs.TpT:AddButton({
+Tabs.Player:AddButton({
     Title = "Bypass Sit Turret",
     Callback = function()
         pcall(function()
@@ -2914,7 +2914,7 @@ Tabs.TpT:AddButton({
 
 
 
-    Tabs.Player:AddSection("↳ Fly")
+    Tabs.Player:AddSection("↳ Flying")
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
