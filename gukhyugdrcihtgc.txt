@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.5.9",
+    SubTitle = "Version 4.6.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1960,9 +1960,39 @@ end)
 
 
 
+    Tabs.Ite:AddSection("↳ Bring")
+
+Tabs.Ite:AddButton({
+    Title = "Bring All Coal",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/Bring-Coal.lua"))()
+        end)
+    end
+})
 
 
+Tabs.Ite:AddButton({
+    Title = "Bring All Gold",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/Bring-Gold.lua"))()
+        end)
+    end
+})
 
+
+Tabs.Ite:AddButton({
+    Title = "Bring All Silver",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/Bring-silver.lua"))()
+        end)
+    end
+})
 
 -- Teleport tab
 
