@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.6.2",
+    SubTitle = "Version 4.6.4",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2198,6 +2198,81 @@ Tabs.TpT:AddButton({
 
 
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local targetSpeed = 150
+
+local AutoDriveEnabled = false
+local trainConnection = nil
+
+-- Tìm ghế điều khiển mà player đang ngồi vào
+local function getVehicleSeat()
+	while AutoDriveEnabled do
+		local char = player.Character or player.CharacterAdded:Wait()
+		local humanoid = char:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.SeatPart and humanoid.SeatPart:IsA("VehicleSeat") then
+			return humanoid.SeatPart
+		end
+		task.wait(0.1)
+	end
+end
+
+-- Giữ tàu chạy thẳng liên tục
+local function driveTrain(seat)
+	if trainConnection then trainConnection:Disconnect() end
+	trainConnection = RunService.Heartbeat:Connect(function()
+		if not AutoDriveEnabled then
+			trainConnection:Disconnect()
+			trainConnection = nil
+			return
+		end
+
+		if not seat or seat.Occupant ~= player.Character:FindFirstChild("Humanoid") then
+			trainConnection:Disconnect()
+			trainConnection = nil
+			return
+		end
+
+		seat.Throttle = 1
+		if seat.AssemblyLinearVelocity.Magnitude < targetSpeed then
+			local direction = seat.CFrame.LookVector
+			seat.AssemblyLinearVelocity = direction * targetSpeed
+		end
+	end)
+end
+
+-- Theo dõi ghế và điều khiển khi bật
+local function startAutoDrive()
+	task.spawn(function()
+		while AutoDriveEnabled do
+			local seat = getVehicleSeat()
+			if not AutoDriveEnabled then break end
+			driveTrain(seat)
+			repeat
+				task.wait(0.5)
+			until not seat.Occupant or not AutoDriveEnabled
+		end
+	end)
+end
+
+-- ✅ Tạo Toggle trong GUI Fluent (Tab: TpT)
+Tabs.TpT:AddToggle("AutoDriveToggle", {
+	Title = "Auto Drive Train",
+	Description = "Self driving super fast train",
+	Default = false,
+}):OnChanged(function(Value)
+	AutoDriveEnabled = Value
+	if Value then
+		startAutoDrive()
+	elseif trainConnection then
+		trainConnection:Disconnect()
+		trainConnection = nil
+	end
+end)
+
+
 
 Tabs.TpT:AddSection("↳ Bases")
 
@@ -2498,29 +2573,6 @@ Tabs.TpT:AddButton({
 })
 
 
-Tabs.TpT:AddSection("↳ TP Flying")
-
-Tabs.TpT:AddButton({
-    Title = "Stop Flying",
-    Callback = function()
-        pcall(function()
-            -- Tải và chạy script từ link
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/jggojdtivfsqrb/ssjskxjodbwusjsv-bs/refs/heads/main/NotFly.lua"))()
-        end)
-    end
-})
-
-
-
-Tabs.TpT:AddButton({
-    Title = "Bypass Sit Turret",
-    Callback = function()
-        pcall(function()
-            -- Tải và chạy script từ link
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/turretbypass.lua"))()
-        end)
-    end
-})
 
 
 Tabs.TpT:AddSection("↳ Horses")
@@ -2831,6 +2883,36 @@ do
             end
         end
     end
+
+
+
+
+
+Tabs.TpT:AddSection("↳ TP Flying")
+
+Tabs.TpT:AddButton({
+    Title = "Stop Flying",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/jggojdtivfsqrb/ssjskxjodbwusjsv-bs/refs/heads/main/NotFly.lua"))()
+        end)
+    end
+})
+
+
+
+Tabs.TpT:AddButton({
+    Title = "Bypass Sit Turret",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead-Rails/refs/heads/main/turretbypass.lua"))()
+        end)
+    end
+})
+
+
 
     Tabs.Player:AddSection("↳ Fly")
 
