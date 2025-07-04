@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.6.5",
+    SubTitle = "Version 4.6.7",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1711,46 +1711,150 @@ PsoBToggle:OnChanged(function(Value)
 end)
 
 
+-- Pickup Melle
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
------ pickup gun
+local pickUpRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Tool"):WaitForChild("PickUpTool")
+local runtimeItems = Workspace:WaitForChild("RuntimeItems")
 
+-- Danh sách các loại vũ khí hợp lệ
+local MelleTypes = {
+    ["Shovel"] = true, ["Pickaxe"] = true, ["Tomahawk"] = true, 
+    ["Cavalry Sword"] = true, ["Vampire Knife"] = true, ["Excalibur"] = true, 
+    ["Jade Sword"] = true
+}
 
+-- Trạng thái bật/tắt auto collect
 local autoCollectEnabled = false
+local MelleConnection = nil
 
--- Tạo Toggle mới để bật/tắt Auto Pickup Gun thông qua link script
+-- Hàm nhặt melle
+local function collectMelle(Melle)
+    if Melle and Melle:IsA("Model") and MelleTypes[Melle.Name] then
+        pcall(function()
+            pickUpRemote:FireServer(Melle)
+        end)
+    end
+end
+
+-- Nhặt tất cả súng có sẵn
+local function collectMelles()
+    for _, item in ipairs(runtimeItems:GetChildren()) do
+        collectMelle(item)
+    end
+end
+
+-- Kết nối sự kiện thêm súng mới
+local function startAutoCollect()
+    if MelleConnection then MelleConnection:Disconnect() end
+    MelleConnection = runtimeItems.ChildAdded:Connect(function(child)
+        if autoCollectEnabled then
+            task.wait(0.1)
+            collectMelle(child)
+        end
+    end)
+end
+
+-- Kết nối khi có item bị xoá để kiểm tra lại
+runtimeItems.ChildRemoved:Connect(function()
+    if autoCollectEnabled then
+        collectMelles()
+    end
+end)
+
+-- Tạo Toggle trong Fluent GUI
+local Melle1Toggle = Tabs.Ite:AddToggle("Melle1Toggle", {
+    Title = "Auto Pickup Melle(s)",
+    Default = false
+})
+
+-- Bắt sự kiện khi người dùng bật/tắt Toggle
+Melle1Toggle:OnChanged(function(Value)
+    autoCollectEnabled = Value
+
+    if autoCollectEnabled then
+        collectMelles()
+        startAutoCollect()
+    elseif MelleConnection then
+        MelleConnection:Disconnect()
+        MelleConnection = nil
+    end
+end)
+
+
+-- Pickup Gun
+
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local pickUpRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Tool"):WaitForChild("PickUpTool")
+local runtimeItems = Workspace:WaitForChild("RuntimeItems")
+
+-- Danh sách các loại súng hợp lệ
+local gunTypes = {
+    ["Revolver"] = true, ["Shotgun"] = true, ["Rifle"] = true, 
+    ["Navy Revolver"] = true, ["Mauser"] = true, ["Bolt Action Rifle"] = true, 
+    ["Electrocutioner"] = true, ["Sawed-Off Shotgun"] = true, ["Crossbow"] = true, 
+    ["Blunderbuss"] = true, ["Elephant Rifle"] = true
+}
+
+-- Trạng thái bật/tắt auto collect
+local autoCollectEnabled = false
+local gunConnection = nil
+
+-- Hàm nhặt súng
+local function collectGun(gun)
+    if gun and gun:IsA("Model") and gunTypes[gun.Name] then
+        pcall(function()
+            pickUpRemote:FireServer(gun)
+        end)
+    end
+end
+
+-- Nhặt tất cả súng có sẵn
+local function collectGuns()
+    for _, item in ipairs(runtimeItems:GetChildren()) do
+        collectGun(item)
+    end
+end
+
+-- Kết nối sự kiện thêm súng mới
+local function startAutoCollect()
+    if gunConnection then gunConnection:Disconnect() end
+    gunConnection = runtimeItems.ChildAdded:Connect(function(child)
+        if autoCollectEnabled then
+            task.wait(0.1)
+            collectGun(child)
+        end
+    end)
+end
+
+-- Kết nối khi có item bị xoá để kiểm tra lại
+runtimeItems.ChildRemoved:Connect(function()
+    if autoCollectEnabled then
+        collectGuns()
+    end
+end)
+
+-- Tạo Toggle trong Fluent GUI
 local GunToggle = Tabs.Ite:AddToggle("GunToggle", {
     Title = "Auto Pickup Gun(s)",
     Default = false
 })
 
--- Biến để lưu trữ hàm toggle
-local toggleFunction = nil
-local gunCoroutine = nil
-
--- Khi toggle thay đổi trạng thái
+-- Bắt sự kiện khi người dùng bật/tắt Toggle
 GunToggle:OnChanged(function(Value)
     autoCollectEnabled = Value
-    
+
     if autoCollectEnabled then
-        -- Sử dụng coroutine để chạy script không bị nghẽn
-        gunCoroutine = coroutine.create(function()
-            pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid-/refs/heads/main/NewPickUpGun.txt"))()
-                
-                if _G.ToggleAutoPickupGun then
-                    toggleFunction = _G.ToggleAutoPickupGun
-                    toggleFunction(true) -- Kích hoạt
-                else
-                    warn("⚠️ Không tìm thấy hàm _G.ToggleAutoPickupGun!")
-                end
-            end)
-        end)
-        coroutine.resume(gunCoroutine)
-    else
-        if toggleFunction then
-            toggleFunction(false) -- Tắt nếu toggle chuyển sang false
-        end
+        collectGuns()
+        startAutoCollect()
+    elseif gunConnection then
+        gunConnection:Disconnect()
+        gunConnection = nil
     end
 end)
 
