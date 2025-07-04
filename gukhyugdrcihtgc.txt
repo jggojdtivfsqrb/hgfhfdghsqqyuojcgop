@@ -1711,7 +1711,7 @@ PsoBToggle:OnChanged(function(Value)
 end)
 
 
--- Pickup Melle
+-- Pickup Melee
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -1766,7 +1766,7 @@ end)
 
 -- Tạo Toggle trong Fluent GUI
 local Melle1Toggle = Tabs.Ite:AddToggle("Melle1Toggle", {
-    Title = "Auto Pickup Melle(s)",
+    Title = "Auto Pickup Melee(s)",
     Default = false
 })
 
