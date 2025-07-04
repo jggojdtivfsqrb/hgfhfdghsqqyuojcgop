@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.6.7",
+    SubTitle = "Version 4.6.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -3526,6 +3526,16 @@ local FreeCamToggle = Tabs.Misc:AddToggle("FreeCamToggle", {
     Default = false
 })
 
+-- Slider chỉnh tốc độ
+local SpeedSlider = Tabs.Misc:AddSlider("FreeCamSpeed", {
+    Title = "Select Speed",
+    Default = 16,
+    Min = 1,
+    Max = 300,
+    Rounding = 1
+})
+
+-- Dịch vụ
 local cam = workspace.CurrentCamera
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
@@ -3540,13 +3550,18 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 
 cam.CameraType = Enum.CameraType.Scriptable
 
-local speed = 10
+-- Giá trị mặc định ban đầu
+local speed = 16 / 10
 local sens = 0.3
 
-speed /= 10
 if onMobile then
     sens *= 2
 end
+
+-- Khi thay đổi slider → cập nhật tốc độ
+SpeedSlider:OnChanged(function(value)
+    speed = value / 10
+end)
 
 local player = Players.LocalPlayer
 local char, humanoid
@@ -3557,10 +3572,9 @@ local function getChar()
     humanoid = char:FindFirstChildWhichIsA("Humanoid")
 end
 
--- Gọi ban đầu
 getChar()
 
--- Hàm khóa hoặc mở khóa nhân vật
+-- Khóa hoặc mở khóa nhân vật
 local function setCharacterLocked(lock)
     if humanoid then
         if lock then
@@ -3575,7 +3589,6 @@ local function setCharacterLocked(lock)
     end
 end
 
--- Khi nhân vật được tạo mới (hồi sinh, cứu sống, respawn, v.v)
 player.CharacterAdded:Connect(function()
     getChar()
     if freeCamEnabled then
@@ -3645,7 +3658,7 @@ RS.Heartbeat:Connect(function()
     end
 end)
 
--- Nhận input bàn phím / cảm ứng
+-- Input keys
 local validKeys = {
     "Enum.KeyCode.W",
     "Enum.KeyCode.A",
@@ -3693,7 +3706,6 @@ UIS.InputEnded:Connect(function(Input)
     end
 end)
 
--- Di chuyển bằng cảm ứng
 UIS.TouchMoved:Connect(function(input)
     if touchPos and freeCamEnabled then
         if input.Position.X < cam.ViewportSize.X / 2 then
