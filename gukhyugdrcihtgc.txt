@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.7.1",
+    SubTitle = "Version 4.7.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1893,7 +1893,8 @@ AmmoToggle:OnChanged(function(Value)
         ["ShotgunShells"] = true,
         ["RifleAmmo"] = true,
         ["RevolverAmmo"] = true,
-        ["ArrowAmmo"] = true
+        ["ArrowAmmo"] = true,
+        ["FireworkAmmo"] = true
     }
 
     if Value and activateRemote then
