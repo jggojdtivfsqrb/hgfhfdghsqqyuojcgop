@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.6.8",
+    SubTitle = "Version 4.7.0",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1324,7 +1324,8 @@ local meleeList = {
     "Cavalry Sword",
     "Vampire Knife",
     "Jade Sword",
-    "Excalibur"
+    "Excalibur",
+    "Sword"
 }
 
 -- Bảng delay tương ứng với tên hiển thị
@@ -1723,7 +1724,7 @@ local runtimeItems = Workspace:WaitForChild("RuntimeItems")
 local MelleTypes = {
     ["Shovel"] = true, ["Pickaxe"] = true, ["Tomahawk"] = true, 
     ["Cavalry Sword"] = true, ["Vampire Knife"] = true, ["Excalibur"] = true, 
-    ["Jade Sword"] = true
+    ["Jade Sword"] = true, ["Sword"] = true
 }
 
 -- Trạng thái bật/tắt auto collect
