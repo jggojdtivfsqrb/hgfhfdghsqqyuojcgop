@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.7.2",
+    SubTitle = "Version 4.7.3",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1724,7 +1724,8 @@ local runtimeItems = Workspace:WaitForChild("RuntimeItems")
 local MelleTypes = {
     ["Shovel"] = true, ["Pickaxe"] = true, ["Tomahawk"] = true, 
     ["Cavalry Sword"] = true, ["Vampire Knife"] = true, ["Excalibur"] = true, 
-    ["Jade Sword"] = true, ["Sword"] = true
+    ["Jade Sword"] = true, ["Sword"] = true, ["Molotov"] = true,
+    ["Holy Water"] = true
 }
 
 -- Trạng thái bật/tắt auto collect
