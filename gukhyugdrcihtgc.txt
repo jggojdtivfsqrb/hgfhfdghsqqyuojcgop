@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.7.0",
+    SubTitle = "Version 4.7.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -1799,7 +1799,7 @@ local gunTypes = {
     ["Revolver"] = true, ["Shotgun"] = true, ["Rifle"] = true, 
     ["Navy Revolver"] = true, ["Mauser"] = true, ["Bolt Action Rifle"] = true, 
     ["Electrocutioner"] = true, ["Sawed-Off Shotgun"] = true, ["Crossbow"] = true, 
-    ["Blunderbuss"] = true, ["Elephant Rifle"] = true
+    ["Blunderbuss"] = true, ["Elephant Rifle"] = true, ["Firework Gun"] = true
 }
 
 -- Trạng thái bật/tắt auto collect
