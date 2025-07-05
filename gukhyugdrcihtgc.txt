@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.7.3",
+    SubTitle = "Version 4.7.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -24,6 +24,7 @@ local Tabs = {
     Ma = Window:AddTab({ Title = "Main", Icon = "rbxassetid://121302760641013" }),
     Ite = Window:AddTab({ Title = "Items", Icon = "rbxassetid://121302760641013" }),
     TpT = Window:AddTab({ Title = "Teleport", Icon = "rbxassetid://121302760641013" }),
+    Town = Window:AddTab({ Title = "Town", Icon = "rbxassetid://121302760641013" }),
     Player = Window:AddTab({ Title = "Player", Icon = "rbxassetid://121302760641013" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "rbxassetid://121302760641013" }),
     Settings = Window:AddTab({ Title = "Setting", Icon = "rbxassetid://121302760641013" }),
@@ -2764,7 +2765,69 @@ Tabs.TpT:AddButton({
     end
 })
 
----Player tab
+-- Tabs.Town
+
+Tabs.Town:AddButton({
+    Title = "Town 10km",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town1.lua.txt"))()
+        end)
+    end
+})
+
+Tabs.Town:AddButton({
+    Title = "Town 20km",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/tptown2.lua.txt"))()
+        end)
+    end
+})
+
+Tabs.Town:AddButton({
+    Title = "Town 30km",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town3.lua.txt"))()
+        end)
+    end
+})
+
+Tabs.Town:AddButton({
+    Title = "Town 40km",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town4.lua.txt"))()
+        end)
+    end
+})
+
+Tabs.Town:AddButton({
+    Title = "Town 50km",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town5.lua.txt"))()
+        end)
+    end
+})
+
+Tabs.Town:AddButton({
+    Title = "Town 60km",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town6.lua.txt"))()
+        end)
+    end
+})
+
+-- Tab.Player
 
 
 
