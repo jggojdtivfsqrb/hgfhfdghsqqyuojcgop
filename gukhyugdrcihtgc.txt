@@ -2768,7 +2768,7 @@ Tabs.TpT:AddButton({
 -- Tabs.Town
 
 Tabs.Town:AddButton({
-    Title = "Town 10km",
+    Title = "Town 0-10km",
     Callback = function()
         pcall(function()
             -- Hook SetCore để chặn thông báo
@@ -2789,7 +2789,7 @@ Tabs.Town:AddButton({
 })
 
 Tabs.Town:AddButton({
-    Title = "Town 20km",
+    Title = "Town 10-20km",
     Callback = function()
         pcall(function()
             -- Hook SetCore để chặn thông báo
@@ -2810,7 +2810,7 @@ Tabs.Town:AddButton({
 })
 
 Tabs.Town:AddButton({
-    Title = "Town 30km",
+    Title = "Town 20-30km",
     Callback = function()
         pcall(function()
             -- Hook SetCore để chặn thông báo
@@ -2831,7 +2831,7 @@ Tabs.Town:AddButton({
 })
 
 Tabs.Town:AddButton({
-    Title = "Town 40km",
+    Title = "Town 30-40km",
     Callback = function()
         pcall(function()
             -- Hook SetCore để chặn thông báo
@@ -2852,7 +2852,7 @@ Tabs.Town:AddButton({
 })
 
 Tabs.Town:AddButton({
-    Title = "Town 50km",
+    Title = "Town 40-50km",
     Callback = function()
         pcall(function()
             -- Hook SetCore để chặn thông báo
@@ -2873,7 +2873,7 @@ Tabs.Town:AddButton({
 })
 
 Tabs.Town:AddButton({
-    Title = "Town 60km",
+    Title = "Town 50-60km",
     Callback = function()
         pcall(function()
             -- Hook SetCore để chặn thông báo
