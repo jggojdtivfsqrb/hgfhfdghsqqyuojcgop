@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.7.5",
+    SubTitle = "Version 4.7.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2771,6 +2771,17 @@ Tabs.Town:AddButton({
     Title = "Town 10km",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town1.lua.txt"))()
         end)
@@ -2781,6 +2792,17 @@ Tabs.Town:AddButton({
     Title = "Town 20km",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/tptown2.lua.txt"))()
         end)
@@ -2791,6 +2813,17 @@ Tabs.Town:AddButton({
     Title = "Town 30km",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town3.lua.txt"))()
         end)
@@ -2801,6 +2834,17 @@ Tabs.Town:AddButton({
     Title = "Town 40km",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town4.lua.txt"))()
         end)
@@ -2811,6 +2855,17 @@ Tabs.Town:AddButton({
     Title = "Town 50km",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town5.lua.txt"))()
         end)
@@ -2821,6 +2876,17 @@ Tabs.Town:AddButton({
     Title = "Town 60km",
     Callback = function()
         pcall(function()
+            -- Hook SetCore để chặn thông báo
+            local originalSetCore = game:GetService("StarterGui").SetCore
+            local blocked = {"SendNotification"}
+
+            hookfunction(originalSetCore, function(self, method, ...)
+                if table.find(blocked, method) then
+                    return -- Chặn thông báo xuất hiện
+                end
+                return originalSetCore(self, method, ...)
+            end)
+
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/town6.lua.txt"))()
         end)
