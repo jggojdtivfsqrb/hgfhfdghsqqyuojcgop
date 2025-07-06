@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.8.2",
+    SubTitle = "Version 4.8.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2708,6 +2708,15 @@ Tabs.TpT:AddButton({
 })
 
 
+Tabs.TpT:AddButton({
+    Title = "TP To Pyramid",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Dead_Rails/refs/heads/main/TPtoUFO.lua"))()
+        end)
+    end
+})
 
 
 Tabs.TpT:AddSection("↳ Horses")
