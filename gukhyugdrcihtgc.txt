@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.8.1",
+    SubTitle = "Version 4.8.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -2033,9 +2033,6 @@ end)
                         {"Rightshoulderarmor", 45},
                         {"Leftshoulderarmor", 45},
                         {"Nikola Tesla`s Head", 250},
-                        {"Crossbow", 1},
-                        {"Blunderbuss", 1},
-                        {"Elephant Rifle", 1},
                     }
                     
                     local StarterGui = game:GetService("StarterGui")
@@ -2108,6 +2105,26 @@ Tabs.Ite:AddButton({
         pcall(function()
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/Bring-Rocket.lua"))()
+        end)
+    end
+})
+
+Tabs.Ite:AddButton({
+    Title = "Bring All Fw Gun",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/Bring-Firework-Gun.lua"))()
+        end)
+    end
+})
+
+Tabs.Ite:AddButton({
+    Title = "Bring All Fw Ammo",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/Bring-FireworkAmmo.lua"))()
         end)
     end
 })
