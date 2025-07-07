@@ -9,7 +9,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Dead Rails",
-    SubTitle = "Version 4.8.8",
+    SubTitle = "Version 4.8.9",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -4387,83 +4387,67 @@ Tabs.Misc:AddButton({
         end
     end)
 
+local CollectionService = game:GetService("CollectionService")
+local Lighting = game:GetService("Lighting")
 
 local EffectsToggle = Tabs.Misc:AddToggle("EffectsDisablerToggle", {
     Title = "Remove Effect",
     Default = false
 })
 
+local running = false
+local tagName = "EffectDisabledByScript"
+
 EffectsToggle:OnChanged(function(Value)
+    running = Value
+
     if Value then
-        local ToDisable = {
-            Textures = true,
-            VisualEffects = true,
-            Parts = true,
-            Particles = true,
-            Sky = true
-        }
+        task.spawn(function()
+            while running do
+                local count = 0
 
-        local ToEnable = {
-            FullBright = false
-        }
+                for _, v in ipairs(game:GetDescendants()) do
+                    if not CollectionService:HasTag(v, tagName) then
+                        if v:IsA("Part") or v:IsA("Union") or v:IsA("BasePart") then
+                            v.Material = Enum.Material.SmoothPlastic
+                            CollectionService:AddTag(v, tagName)
+                            count += 1
 
-        local Stuff = {}
+                        elseif v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Explosion") or v:IsA("Sparkles") or v:IsA("Fire") then
+                            v.Enabled = false
+                            CollectionService:AddTag(v, tagName)
+                            count += 1
 
-        for _, v in next, game:GetDescendants() do
-            if ToDisable.Parts then
-                if v:IsA("Part") or v:IsA("Union") or v:IsA("BasePart") then
-                    v.Material = Enum.Material.SmoothPlastic
-                    table.insert(Stuff, 1, v)
+                        elseif v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("SunRaysEffect") then
+                            v.Enabled = false
+                            CollectionService:AddTag(v, tagName)
+                            count += 1
+
+                        elseif v:IsA("Decal") or v:IsA("Texture") then
+                            v.Texture = ""
+                            CollectionService:AddTag(v, tagName)
+                            count += 1
+
+                        elseif v:IsA("Sky") then
+                            v:Destroy()
+                            count += 1
+                        end
+                    end
                 end
+
+                -- Optional: bật fullbright mỗi lần lặp
+                Lighting.FogColor = Color3.new(1, 1, 1)
+                Lighting.FogEnd = math.huge
+                Lighting.FogStart = math.huge
+                Lighting.Ambient = Color3.new(1, 1, 1)
+                Lighting.Brightness = 5
+                Lighting.ColorShift_Bottom = Color3.new(1, 1, 1)
+                Lighting.ColorShift_Top = Color3.new(1, 1, 1)
+                Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+
+                task.wait(1) -- chạy lại sau mỗi 1 giây
             end
-
-            if ToDisable.Particles then
-                if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Explosion") or v:IsA("Sparkles") or v:IsA("Fire") then
-                    v.Enabled = false
-                    table.insert(Stuff, 1, v)
-                end
-            end
-
-            if ToDisable.VisualEffects then
-                if v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("SunRaysEffect") then
-                    v.Enabled = false
-                    table.insert(Stuff, 1, v)
-                end
-            end
-
-            if ToDisable.Textures then
-                if v:IsA("Decal") or v:IsA("Texture") then
-                    v.Texture = ""
-                    table.insert(Stuff, 1, v)
-                end
-            end
-
-            if ToDisable.Sky then
-                if v:IsA("Sky") then
-                    v.Parent = nil
-                    table.insert(Stuff, 1, v)
-                end
-            end
-        end
-
-        game:GetService("TestService"):Message("Effects Disabler Script : Successfully disabled "..#Stuff.." assets / effects. Settings :")
-        for i, v in next, ToDisable do
-            print(tostring(i)..": "..tostring(v))
-        end
-
-        if ToEnable.FullBright then
-            local Lighting = game:GetService("Lighting")
-
-            Lighting.FogColor = Color3.fromRGB(255, 255, 255)
-            Lighting.FogEnd = math.huge
-            Lighting.FogStart = math.huge
-            Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-            Lighting.Brightness = 5
-            Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
-            Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
-            Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
-            Lighting.Outlines = true
-        end
+        end)
     end
 end)
 
