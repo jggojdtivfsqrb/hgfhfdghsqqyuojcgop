@@ -1,0 +1,868 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Fluent/refs/heads/main/SaveManager.lua.txt"))()
+
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Fluent/refs/heads/main/InterfaceManager.lua.txt"))()
+
+local minimizeUI = Enum.KeyCode.RightAlt
+
+-- 🟢 Create Main UI
+local Window = Fluent:CreateWindow({
+    Title = "Hutao hub [FREE] | Ink Game",
+    SubTitle = "Version 2.0.1",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(480, 360),
+    Acrylic = false,
+    Theme = "Darker",
+    MinimizeKey = minimizeUI
+})
+
+-- Tabs
+local Tabs = {
+    Dev = Window:AddTab({ Title = "About", Icon = "rbxassetid://121302760641013"}),
+    Main = Window:AddTab({ Title = "Main", Icon = "rbxassetid://121302760641013" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "rbxassetid://121302760641013" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "rbxassetid://121302760641013" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "rbxassetid://121302760641013" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "rbxassetid://121302760641013" }),
+}  
+
+-- Tab.Dev
+
+local Options = Fluent.Options
+
+
+    Tabs.Dev:AddParagraph({
+        Title = "Note",
+        Content = "Thank you for using the script!"
+    })
+
+    Tabs.Dev:AddSection("↳ Links")
+
+    Tabs.Dev:AddButton({
+        Title = "Discord",
+        Description = "Copy the link to join the discord!",
+        Callback = function()
+            setclipboard("https://discord.gg/aA9Qt9Pt")
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Successfully copied to the clipboard",
+                SubContent = "", -- Optional
+                Duration = 3 
+            })
+        end
+    })
+
+
+
+    Tabs.Dev:AddButton({
+        Title = "Youtube",
+        Description = "Copy link to Subscribe to Youtube channel!",
+        Callback = function()
+            setclipboard("https://www.youtube.com/@SLKgamingSSR")
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Successfully copied to the clipboard!",
+                SubContent = "", -- Optional
+                Duration = 3 
+            })
+        end
+    })
+
+
+    Tabs.Dev:AddButton({
+        Title = "Facebook",
+        Description = "Copy link to join facebook group!",
+        Callback = function()
+            setclipboard("https://www.facebook.com/groups/1180845463307087/?ref=share&mibextid=NSMWBT")
+            Fluent:Notify({
+                Title = "Notification",
+                Content = "Successfully copied to the clipboard!",
+                SubContent = "", -- Optional
+                Duration = 3 
+            })
+        end
+    })
+
+
+
+-- Tabs.Player
+
+
+
+
+    Tabs.Player:AddSection("↳ Flying")
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- State
+local flying = false
+local flySpeed = 50
+local bodyVelocity, bodyGyro, renderConn
+
+-- Function: Start Flying
+local function startFlying()
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid")
+	local HRP = character:WaitForChild("HumanoidRootPart")
+
+	local seat = humanoid.SeatPart
+	local attachPart = seat or HRP
+
+	-- Body movers
+	bodyVelocity = Instance.new("BodyVelocity")
+	bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+	bodyVelocity.Velocity = Vector3.zero
+	bodyVelocity.Parent = attachPart
+
+	bodyGyro = Instance.new("BodyGyro")
+	bodyGyro.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+	bodyGyro.CFrame = attachPart.CFrame
+	bodyGyro.Parent = attachPart
+
+	humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
+	-- Movement logic
+	renderConn = RunService.RenderStepped:Connect(function()
+		if attachPart and Camera then
+			local camCF = Camera.CFrame
+			local moveDir = humanoid.MoveDirection
+
+			local moveVec = Vector3.zero
+
+			if moveDir.Magnitude > 0 then
+				-- Dựng vector bay theo hướng nhìn
+				local forward = camCF.LookVector
+				local flatForward = Vector3.new(forward.X, 0, forward.Z).Unit
+				local verticalInfluence = forward.Unit.Y
+
+				-- Xác định xem đang đi tiến hay lùi
+				local movingForward = flatForward:Dot(moveDir.Unit) > 0.1
+				local movingBackward = flatForward:Dot(moveDir.Unit) < -0.1
+
+				local yVelocity = 0
+
+				-- Nếu đang đi tiến hoặc lùi, áp dụng hướng nhìn để tăng giảm độ cao
+				if movingForward then
+					yVelocity = verticalInfluence
+				elseif movingBackward then
+					yVelocity = -verticalInfluence
+				end
+
+				-- Kết hợp chuyển động ngang + dọc
+				moveVec = Vector3.new(moveDir.X, yVelocity, moveDir.Z).Unit
+			end
+
+			bodyVelocity.Velocity = moveVec * flySpeed
+			bodyGyro.CFrame = camCF
+		end
+	end)
+
+	flying = true
+end
+
+-- Function: Stop Flying
+local function stopFlying()
+	flying = false
+
+	if renderConn then renderConn:Disconnect() renderConn = nil end
+	if bodyVelocity then bodyVelocity:Destroy() bodyVelocity = nil end
+	if bodyGyro then bodyGyro:Destroy() bodyGyro = nil end
+
+	-- Fix: Khôi phục trạng thái nhân vật
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+		end
+	end
+end
+
+-- Auto handle respawn
+Players.LocalPlayer.CharacterAdded:Connect(function()
+	if flying then
+		task.wait(1)
+		startFlying()
+	end
+end)
+
+-- UI Toggle
+local FlyToggle = Tabs.Player:AddToggle("FlyToggle", {
+	Title = "Fly (Mobile + PC)",
+	Description = "Fly Supper OP For Newbie!",
+	Default = false
+})
+
+FlyToggle:OnChanged(function(Value)
+	if Value then
+		startFlying()
+	else
+		stopFlying()
+	end
+end)
+
+-- Speed slider
+Tabs.Player:AddSlider("FlySpeedSlider", {
+	Title = "Fly Speed",
+	Description = "Adjust fly speed",
+	Default = 50,
+	Min = 10,
+	Max = 300,
+	Rounding = 0,
+	Callback = function(Value)
+		flySpeed = Value
+	end
+})
+
+
+    Tabs.Player:AddSection("↳ Walk Speed")
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local speedValue = 16 -- Mặc định
+local running = false
+
+-- Tạo Slider tốc độ trong Tabs.Player
+local speedSlider = Tabs.Player:AddSlider("SpeedSlider", {
+    Title = "Adjust speed",
+    Default = 16,
+    Min = 1,
+    Max = 300,
+    Rounding = 0,
+})
+
+-- Lắng nghe khi Slider thay đổi
+speedSlider:OnChanged(function(value)
+    speedValue = value
+end)
+
+-- Tạo Toggle tăng tốc độ liên tục
+local speedToggle = Tabs.Player:AddToggle("SpeedToggle", {
+    Title = "Walk Speed",
+    Default = false,
+})
+
+-- Lắng nghe khi Toggle thay đổi
+speedToggle:OnChanged(function(enabled)
+    running = enabled
+
+    if enabled then
+        -- Luồng chạy liên tục tăng tốc
+        task.spawn(function()
+            while running and task.wait(0.1) do
+                local character = LocalPlayer.Character
+                if character then
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.WalkSpeed = speedValue
+                    end
+                end
+            end
+        end)
+    else
+        -- Khi tắt: trả về tốc độ mặc định
+        local character = LocalPlayer.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+            end
+        end
+    end
+end)
+
+
+    Tabs.Player:AddSection("↳ Noclip")
+
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local Maid = {} -- Giả lập Maid nếu bạn chưa có
+Maid.__index = Maid
+
+function Maid.new()
+    return setmetatable({_tasks = {}}, Maid)
+end
+
+function Maid:GiveTask(task)
+    table.insert(self._tasks, task)
+end
+
+function Maid:DoCleaning()
+    for _, task in ipairs(self._tasks) do
+        if typeof(task) == "RBXScriptConnection" then
+            task:Disconnect()
+        elseif typeof(task) == "function" then
+            task()
+        end
+    end
+    self._tasks = {}
+end
+
+-- Tạo Toggle Noclip
+local noclipToggle = Tabs.Player:AddToggle("NoclipToggle", {
+    Title = "Noclip Pro",
+    Default = false,
+})
+
+-- Setup hệ thống Noclip
+local CharacterMaid = Maid.new()
+local NoclippedBaseParts = {}
+local CachedBaseParts = {}
+
+local function OnCharacterAdded(character)
+    CharacterMaid:DoCleaning()
+    CachedBaseParts = {}
+    local humanoid = character:WaitForChild("Humanoid")
+
+    -- Cache tất cả BasePart
+    for _, obj in ipairs(character:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            table.insert(CachedBaseParts, obj)
+        end
+    end
+
+    -- Cache mới nếu có BasePart mới
+    CharacterMaid:GiveTask(character.DescendantAdded:Connect(function(desc)
+        if desc:IsA("BasePart") then
+            table.insert(CachedBaseParts, desc)
+        end
+    end))
+
+    -- Vòng lặp chính cho Noclip
+    CharacterMaid:GiveTask(RunService.Stepped:Connect(function()
+        if not noclipToggle.Value then
+            for part in pairs(NoclippedBaseParts) do
+                NoclippedBaseParts[part] = nil
+                part.CanCollide = true
+            end
+            return
+        end
+
+        for _, part in ipairs(CachedBaseParts) do
+            if part:IsA("BasePart") and part.CanCollide then
+                NoclippedBaseParts[part] = true
+                part.CanCollide = false
+            end
+        end
+    end))
+
+    -- Khi character bị xóa, khôi phục CanCollide
+    CharacterMaid:GiveTask(function()
+        for part in pairs(NoclippedBaseParts) do
+            part.CanCollide = true
+        end
+        NoclippedBaseParts = {}
+    end)
+end
+
+-- Gắn vào nhân vật mới
+LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
+if LocalPlayer.Character then
+    task.spawn(OnCharacterAdded, LocalPlayer.Character)
+end
+
+
+
+-- Tabs.Misc
+
+
+local CollectionService = game:GetService("CollectionService")
+
+local EffectsToggle = Tabs.Misc:AddToggle("EffectsDisablerToggle", {
+    Title = "Fix Lag PRO",
+    Default = false
+})
+
+local running = false
+local tagName = "EffectDisabledByScript"
+
+EffectsToggle:OnChanged(function(Value)
+    running = Value
+
+    if Value then
+        task.spawn(function()
+            while running do
+                for _, v in ipairs(game:GetDescendants()) do
+                    if not CollectionService:HasTag(v, tagName) then
+                        if v:IsA("Part") or v:IsA("Union") or v:IsA("BasePart") then
+                            v.Material = Enum.Material.SmoothPlastic
+                            CollectionService:AddTag(v, tagName)
+
+                        elseif v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Explosion") or v:IsA("Sparkles") or v:IsA("Fire") then
+                            v.Enabled = false
+                            CollectionService:AddTag(v, tagName)
+
+                        elseif v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("SunRaysEffect") then
+                            v.Enabled = false
+                            CollectionService:AddTag(v, tagName)
+
+                        elseif v:IsA("Decal") or v:IsA("Texture") then
+                            v.Texture = ""
+                            CollectionService:AddTag(v, tagName)
+
+                        elseif v:IsA("Sky") then
+                            v:Destroy()
+                        end
+                    end
+                end
+                task.wait(30)
+            end
+        end)
+    end
+end)
+
+
+
+
+
+-- FPS + Ping Drawing Setup
+local showFPS = true
+local showPing = true
+
+local fpsText = Drawing.new("Text")
+fpsText.Size = 16
+fpsText.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X - 100, 10)
+fpsText.Color = Color3.fromRGB(0, 255, 0)
+fpsText.Center = false
+fpsText.Outline = true
+fpsText.Visible = showFPS
+
+local msText = Drawing.new("Text")
+msText.Size = 16
+msText.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X - 100, 30)
+msText.Color = Color3.fromRGB(0, 255, 0)
+msText.Center = false
+msText.Outline = true
+msText.Visible = showPing
+
+local fpsCounter = 0
+local fpsLastUpdate = tick()
+
+RunService.RenderStepped:Connect(function()
+    fpsCounter += 1
+    if tick() - fpsLastUpdate >= 1 then
+        -- Update FPS
+        if showFPS then
+            fpsText.Text = "FPS: " .. tostring(fpsCounter)
+            fpsText.Visible = true
+        else
+            fpsText.Visible = false
+        end
+
+        -- Update Ping
+        if showPing then
+            local pingStat = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]
+            local ping = pingStat and math.floor(pingStat:GetValue()) or 0
+            msText.Text = "Ping: " .. ping .. " ms"
+
+            if ping <= 60 then
+                msText.Color = Color3.fromRGB(0, 255, 0)
+            elseif ping <= 120 then
+                msText.Color = Color3.fromRGB(255, 165, 0)
+            else
+                msText.Color = Color3.fromRGB(255, 0, 0)
+            end
+
+            msText.Visible = true
+        else
+            msText.Visible = false
+        end
+
+        fpsCounter = 0
+        fpsLastUpdate = tick()
+    end
+end)
+
+-- ✅ Fluent GUI Toggles chuẩn
+local fpsToggle = Tabs.Misc:AddToggle("ShowFPSToggle", {
+    Title = "Show FPS",
+    Default = true
+})
+fpsToggle:OnChanged(function(val)
+    showFPS = val
+    fpsText.Visible = val
+end)
+
+local pingToggle = Tabs.Misc:AddToggle("ShowPingToggle", {
+    Title = "Show Ping",
+    Default = true
+})
+pingToggle:OnChanged(function(val)
+    showPing = val
+    msText.Visible = val
+end)
+
+
+
+
+
+
+-- Tabs.Settings
+
+
+local AexecToggle = Tabs.Settings:AddToggle("AexecToggle", {Title = "Auto Execute", Default = false })
+AexecToggle:OnChanged(function(Value)
+    if Value then
+        task.spawn(function()
+            pcall(function()
+                if queue_on_teleport then
+                    local HutaoHubScript1 = [[
+task.wait(3)
+loadstring(game:HttpGet('https://raw.githubusercontent.com/hungquan99/SkullHub/main/loader.lua'))()
+]]
+                    queue_on_teleport(HutaoHubScript1)
+                end
+            end)
+        end)
+        Fluent:Notify({
+            Title = "Hutao HUB",
+            Content = "Auto execute is enabled!",
+            Duration = 5
+        })
+    else
+        Fluent:Notify({
+            Title = "Hutao HUB",
+            Content = "Auto execute is disabled!",
+            Duration = 5
+        })
+    end
+end)
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+-- Ignore keys that are used by ThemeManager.
+-- (we dont want configs to save themes, do we?)
+SaveManager:IgnoreThemeSettings()
+
+-- You can add indexes of elements the save manager should ignore
+SaveManager:SetIgnoreIndexes({})
+
+-- use case for doing it this way:
+-- a script hub could have themes in a global folder
+-- and game configs in a separate folder per game
+InterfaceManager:SetFolder("Hutao HUB")
+SaveManager:SetFolder("Hutao HUB/Ink Game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+-- Select First Tab By Default
+Window:SelectTab(1)
+
+Fluent:Notify({ Title = "Hutao HUB", Content = "Ink Game script loaded successfully!", Duration = 5 })
+SaveManager:LoadAutoloadConfig()
+
+
+-- 🟢 DRAGGABLE UI BUTTON WITH ENHANCED CLICK AND HOVER ANIMATIONS
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local ExistingUI = CoreGui:FindFirstChild("HutaoHubMinimizeUI")
+if ExistingUI then
+    ExistingUI:Destroy()
+end
+
+-- Create Floating UI
+local DragUI = Instance.new("ScreenGui")
+DragUI.Name = "HutaoHubMinimizeUI"
+DragUI.ResetOnSpawn = false
+DragUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling -- Ensures highest rendering priority
+DragUI.Parent = CoreGui -- Overrides all other UI elements
+
+-- Create Circular Button (Draggable + Clickable)
+local Button = Instance.new("ImageButton")
+Button.Parent = DragUI
+Button.Size = UDim2.new(0, 50, 0, 50) -- Adjust size if needed
+Button.Position = UDim2.new(0, 10, 1, -85) -- Initial position
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Windows 11 Style
+Button.BackgroundTransparency = 0.3 -- Semi-transparent
+Button.BorderSizePixel = 0
+Button.ClipsDescendants = true
+Button.Image = "rbxassetid://90508203972003" -- Replace with your custom image ID
+Button.ScaleType = Enum.ScaleType.Fit
+Button.Active = true -- Allows drag functionality
+Button.ZIndex = 1000 -- Ensure it stays on top
+
+-- Make UI Circular
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0) -- Full circle
+UICorner.Parent = Button
+
+-- Tween Info for Animations
+local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+-- Function to simulate RightShift key press
+local function SimulateKeyPress()
+    VirtualInputManager:SendKeyEvent(true, minimizeUI, false, game)
+    task.wait(0.1)
+    VirtualInputManager:SendKeyEvent(false, minimizeUI, false, game)
+end
+
+-- Click Animation & UI Toggle (Only if NOT dragged too much)
+local isDragging = false
+local dragThreshold = 10 -- Allow small movement without canceling click
+
+Button.MouseButton1Click:Connect(function()
+    if isDragging then return end -- Prevent click after large dragging
+
+    -- Enhanced Click Animation
+    local tween = TweenService:Create(Button, tweenInfo, {
+        BackgroundTransparency = 0.5,
+        Size = UDim2.new(0, 45, 0, 45),
+        Rotation = 5
+    })
+    tween:Play()
+    task.wait(0.1)
+    local tweenBack = TweenService:Create(Button, tweenInfo, {
+        BackgroundTransparency = 0.3,
+        Size = UDim2.new(0, 50, 0, 50),
+        Rotation = 0
+    })
+    tweenBack:Play()
+
+    -- Simulate RightShift to Toggle UI
+    SimulateKeyPress()
+end)
+
+-- Hover Animation
+Button.MouseEnter:Connect(function()
+    TweenService:Create(Button, tweenInfo, {Size = UDim2.new(0, 55, 0, 55)}):Play()
+end)
+
+Button.MouseLeave:Connect(function()
+    TweenService:Create(Button, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)}):Play()
+end)
+
+-- Dragging Logic for PC & Mobile
+local dragging, dragStart, startPos
+
+local function StartDrag(input)
+    isDragging = false -- Reset dragging state
+    dragging = true
+    dragStart = input.Position
+    startPos = Button.Position
+
+    input.Changed:Connect(function()
+        if input.UserInputState == Enum.UserInputState.End then
+            dragging = false
+        end
+    end)
+end
+
+local function OnDrag(input)
+    if dragging then
+        local delta = (input.Position - dragStart).Magnitude
+        if delta > dragThreshold then -- Only mark as dragged if movement exceeds threshold
+            isDragging = true
+        end
+        Button.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + (input.Position.X - dragStart.X),
+            startPos.Y.Scale,
+            startPos.Y.Offset + (input.Position.Y - dragStart.Y)
+        )
+    end
+end
+
+-- Dragging Support for PC & Mobile (on the same button)
+Button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        StartDrag(input)
+    end
+end)
+
+Button.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        OnDrag(input)
+    end
+end)      
+
+
+
+
+
+
+
+
+-- Tab.Main
+
+local Toggles = {}
+
+-- ✅ Tạo các Toggle
+Toggles.RedLightGodMode = Tabs.Main:AddToggle("RedLightGodMode", { Title = "Red Light God Mode", Default = false })
+Toggles.DalgonaAuto = Tabs.Main:AddToggle("DalgonaAuto", { Title = "Dalgona Auto Complete", Default = false })
+Toggles.TugOfWarAuto = Tabs.Main:AddToggle("TugOfWarAuto", { Title = "Tug Of War Auto Pull", Default = false })
+Toggles.GlassBridgeESP = Tabs.Main:AddToggle("GlassBridgeESP", { Title = "Glass Bridge ESP", Default = false })
+Toggles.MinglePowerHoldAuto = Tabs.Main:AddToggle("MinglePowerHoldAuto", { Title = "Mingle Auto QTE", Default = false })
+
+-- ✅ Global GetToggleValue function
+local function GetToggleValue(key)
+    return Toggles[key] and Toggles[key].Value
+end
+
+-- ✅ Red Light Green Light God Mode
+do
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local Client = Players.LocalPlayer
+    local TrafficLightImage = Client.PlayerGui:WaitForChild("ImpactFrames"):WaitForChild("TrafficLightEmpty")
+
+    local IsGreenLight = TrafficLightImage.Image == ReplicatedStorage.Effects.Images.TrafficLights.GreenLight.Image
+    local LastRootPartCFrame = nil
+
+    ReplicatedStorage.Remotes.Effects.OnClientEvent:Connect(function(EffectsData)
+        if EffectsData.EffectName == "TrafficLight" then
+            IsGreenLight = EffectsData.GreenLight == true
+            local RootPart = Client.Character and Client.Character:FindFirstChild("HumanoidRootPart")
+            LastRootPartCFrame = RootPart and RootPart.CFrame
+        end
+    end)
+
+    local OldNamecall
+    OldNamecall = hookfunction(getrawmetatable(game).__namecall, newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        local args = { ... }
+
+        if method == "FireServer" and self.ClassName == "RemoteEvent" and self.Name == "rootCFrame" then
+            if GetToggleValue("RedLightGodMode") and not IsGreenLight and LastRootPartCFrame then
+                args[1] = LastRootPartCFrame
+                return OldNamecall(self, unpack(args))
+            end
+        end
+
+        return OldNamecall(self, ...)
+    end))
+end
+
+-- ✅ Dalgona Auto Complete
+do
+    local Module = game.ReplicatedStorage.Modules.Games.DalgonaClient
+
+    local function CompleteDalgona()
+        if not GetToggleValue("DalgonaAuto") then return end
+
+        for _, f in ipairs(getreg()) do
+            if typeof(f) == "function" and islclosure(f) then
+                if getfenv(f).script == Module then
+                    if getinfo(f).nups == 73 then
+                        setupvalue(f, 31, 9e9)
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    local Original
+    Original = hookfunction(require(Module), function(...)
+        task.delay(3, CompleteDalgona)
+        return Original(...)
+    end)
+
+    Toggles.DalgonaAuto:OnChanged(CompleteDalgona)
+end
+
+-- ✅ Tug of War Auto
+do
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Remote = ReplicatedStorage.Remotes.TemporaryReachedBindable
+    local VALID_PULL_DATA = { ["PerfectQTE"] = true }
+
+    task.spawn(function()
+        while task.wait(0.025) do
+            if GetToggleValue("TugOfWarAuto") then
+                Remote:FireServer(VALID_PULL_DATA)
+            end
+        end
+    end)
+end
+
+-- ✅ Glass Bridge ESP
+do
+    local GlassHolder = workspace:WaitForChild("GlassBridge"):WaitForChild("GlassHolder")
+
+    local function SetupGlassPart(part)
+        if not GetToggleValue("GlassBridgeESP") then
+            part.Color = Color3.fromRGB(106, 106, 106)
+            part.Transparency = 0.45
+            part.Material = Enum.Material.SmoothPlastic
+        else
+            local color = part:GetAttribute("exploitingisevil") and Color3.fromRGB(248, 87, 87) or Color3.fromRGB(28, 235, 87)
+            part.Color = color
+            part.Transparency = 0
+            part.Material = Enum.Material.Neon
+        end
+    end
+
+    local function UpdateAll()
+        for _, panelPair in ipairs(GlassHolder:GetChildren()) do
+            for _, panel in ipairs(panelPair:GetChildren()) do
+                local glass = panel:FindFirstChild("glasspart")
+                if glass then
+                    SetupGlassPart(glass)
+                end
+            end
+        end
+    end
+
+    Toggles.GlassBridgeESP:OnChanged(UpdateAll)
+
+    GlassHolder.DescendantAdded:Connect(function(desc)
+        if desc.Name == "glasspart" and desc:IsA("BasePart") then
+            SetupGlassPart(desc)
+        end
+    end)
+end
+
+-- ✅ Mingle Power Hold Auto
+do
+    local Players = game:GetService("Players")
+    local Client = Players.LocalPlayer
+
+    local function Setup(Character)
+        Character.ChildAdded:Connect(function(child)
+            if child:IsA("RemoteEvent") and child.Name == "RemoteForQTE" then
+                task.spawn(function()
+                    while child and child.Parent do
+                        if GetToggleValue("MinglePowerHoldAuto") then
+                            child:FireServer()
+                        end
+                        task.wait(0.5)
+                    end
+                end)
+            end
+        end)
+
+        for _, obj in ipairs(Character:GetChildren()) do
+            if obj:IsA("RemoteEvent") and obj.Name == "RemoteForQTE" then
+                task.spawn(function()
+                    while obj and obj.Parent do
+                        if GetToggleValue("MinglePowerHoldAuto") then
+                            obj:FireServer()
+                        end
+                        task.wait(0.5)
+                    end
+                end)
+            end
+        end
+    end
+
+    if Client.Character then Setup(Client.Character) end
+    Client.CharacterAdded:Connect(Setup)
+end
