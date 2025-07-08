@@ -1,3 +1,16 @@
+--[[
+
+ _   _    _   _   _____     _       ___     _   _   _   _   ____   
+| | | |  | | | | |_   _|   / \     / _ \   | | | | | | | | | __ )  
+| |_| |  | | | |   | |    / _ \   | | | |  | |_| | | | | | |  _ \  
+|  _  |  | | | |   | |   / ___ \  | |_| |  |  _  | | |_| | | |_) | 
+\_| |_/   \___/    \_/  /_/   \_\  \___/   \_| |_/  \___/  |____/
+
+                        Hutao Hub
+]]
+
+---------------------------------------------------------------------------------
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Fluent/refs/heads/main/SaveManager.lua.txt"))()
@@ -9,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.0.1",
+    SubTitle = "Version 2.0.3",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -85,6 +98,27 @@ local Options = Fluent.Options
     })
 
 
+-- Tabs.Teleport
+
+Tabs.Teleport:AddButton({
+    Title = "TP to Lobby",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/TPtoLobby.lua"))()
+        end)
+    end
+})
+
+Tabs.Teleport:AddButton({
+    Title = "TP to Red Light",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/TPtoRedLight.lua"))()
+        end)
+    end
+})
 
 -- Tabs.Player
 
@@ -700,6 +734,38 @@ end)
 
 
 -- Tab.Main
+
+
+-- Biến điều khiển vòng lặp
+local teleporting = false
+
+-- Vị trí cần teleport
+local targetPosition = Vector3.new(194.9, 54.5, -1.9)
+
+-- Tạo Toggle
+Tabs.Main:AddToggle("AutoTeleportToggle", {
+    Title = "Auto Join Game",
+    Default = false
+}):OnChanged(function(state)
+    teleporting = state
+    if teleporting then
+        task.spawn(function()
+            while teleporting do
+                local player = game:GetService("Players").LocalPlayer
+                local character = player.Character or player.CharacterAdded:Wait()
+                local root = character:FindFirstChild("HumanoidRootPart")
+                if root then
+                    root.CFrame = CFrame.new(targetPosition)
+                end
+                task.wait(1) -- Delay giữa mỗi lần teleport, có thể chỉnh (giảm nếu muốn nhanh)
+            end
+        end)
+    end
+end)
+
+
+
+
 
 local Toggles = {}
 
