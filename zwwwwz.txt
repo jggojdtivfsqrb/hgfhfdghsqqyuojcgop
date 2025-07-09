@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.0.6",
+    SubTitle = "Version 2.0.7",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -941,6 +941,99 @@ Tabs.Main:AddToggle("AutoTeleportToggle", {
                 task.wait(1) -- Delay giữa mỗi lần teleport, có thể chỉnh (giảm nếu muốn nhanh)
             end
         end)
+    end
+end)
+
+
+
+-- Yêu cầu: đã có Fluent GUI + Tabs.ESP
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local Players = game:GetService("Players")
+
+local drawings = {}
+local npcConnection
+
+-- Kiểm tra 1 model có phải là NPC không
+local function isNPC(model)
+    return model:IsA("Model") and model:FindFirstChild("Humanoid") and not Players:GetPlayerFromCharacter(model)
+end
+
+-- Tạo ESP cho NPC
+local function createESP(model)
+    if drawings[model] then return end
+
+    local text = Drawing.new("Text")
+    text.Size = 14
+    text.Center = true
+    text.Outline = true
+    text.Color = Color3.fromRGB(0, 255, 0) -- Xanh lá
+    text.Visible = false
+
+    drawings[model] = text
+end
+
+-- Xoá ESP
+local function removeESP(model)
+    if drawings[model] then
+        drawings[model]:Remove()
+        drawings[model] = nil
+    end
+end
+
+-- Bắt đầu ESP NPC
+local function startNPCESP()
+    npcConnection = RunService.RenderStepped:Connect(function()
+        -- Tạo ESP nếu gặp NPC mới
+        for _, model in ipairs(workspace:GetDescendants()) do
+            if isNPC(model) then
+                createESP(model)
+            end
+        end
+
+        -- Cập nhật vị trí ESP
+        for model, text in pairs(drawings) do
+            if not model or not model.Parent or not isNPC(model) then
+                removeESP(model)
+            else
+                local hrp = model:FindFirstChild("HumanoidRootPart")
+                local humanoid = model:FindFirstChild("Humanoid")
+
+                if hrp and humanoid and humanoid.Health > 0 then
+                    local pos, visible = Camera:WorldToViewportPoint(hrp.Position + Vector3.new(0, 2.5, 0))
+                    local distance = (hrp.Position - Camera.CFrame.Position).Magnitude
+                    text.Text = string.format("%s [%.0fm]", model.Name, distance)
+                    text.Position = Vector2.new(pos.X, pos.Y)
+                    text.Visible = visible
+                else
+                    text.Visible = false
+                end
+            end
+        end
+    end)
+end
+
+-- Dừng ESP
+local function stopNPCESP()
+    if npcConnection then
+        npcConnection:Disconnect()
+        npcConnection = nil
+    end
+    for _, text in pairs(drawings) do
+        text:Remove()
+    end
+    drawings = {}
+end
+
+-- ✅ Tích hợp Fluent GUI Toggle trong Tabs.ESP
+Tabs.Main:AddToggle("ESPNPCToggle", {
+    Title = "ESP All NPC",
+    Default = false,
+}):OnChanged(function(enabled)
+    if enabled then
+        startNPCESP()
+    else
+        stopNPCESP()
     end
 end)
 
