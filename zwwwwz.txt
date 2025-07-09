@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.0.5",
+    SubTitle = "Version 2.0.6",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -56,7 +56,7 @@ local Options = Fluent.Options
         Title = "Discord",
         Description = "Copy the link to join the discord!",
         Callback = function()
-            setclipboard("https://discord.gg/xTW6VRWT")
+            setclipboard("https://discord.gg/aA9Qt9Pt")
             Fluent:Notify({
                 Title = "Notification",
                 Content = "Successfully copied to the clipboard",
@@ -216,6 +216,95 @@ Tabs.Player:AddToggle("ESPPlayerToggle", {
         stopESP()
     end
 end)
+
+
+
+
+--// Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local VirtualInput = game:GetService("VirtualInputManager")
+
+--// Biến kiểm soát
+local AutoAttack = false
+local hasPressedKey1 = false
+
+--// Hàm tìm player gần nhất
+local function GetNearestPlayer()
+    local nearest, shortestDistance = nil, math.huge
+    local myChar = LocalPlayer.Character
+    if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
+
+    local myPos = myChar.HumanoidRootPart.Position
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
+            if dist < shortestDistance then
+                shortestDistance = dist
+                nearest = player
+            end
+        end
+    end
+
+    return nearest
+end
+
+--// Toggle điều khiển
+Tabs.Player:AddToggle("AutoAttackToggle", {
+    Title = "Auto Kill Player",
+    Default = false
+}):OnChanged(function(Value)
+    AutoAttack = Value
+    hasPressedKey1 = false
+
+    if AutoAttack then
+        task.spawn(function()
+            local lastClick = 0
+
+            while AutoAttack do
+                local Target = GetNearestPlayer()
+                if not Target or not Target.Character or not Target.Character:FindFirstChild("HumanoidRootPart") then
+                    task.wait(0.1)
+                    continue
+                end
+
+                local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                local targetRoot = Target.Character:FindFirstChild("HumanoidRootPart")
+                if not root or not targetRoot then break end
+
+                -- Ấn phím 1 một lần duy nhất
+                if not hasPressedKey1 then
+                    hasPressedKey1 = true
+                    VirtualInput:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+                    task.wait(0.05)
+                    VirtualInput:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+                end
+
+                -- Gần hơn: chỉ lùi ra sau 1.5 studs
+                local backOffset = -targetRoot.CFrame.LookVector * 1.5
+                local behindPosition = targetRoot.Position + backOffset
+                local lookDirection = targetRoot.Position + targetRoot.CFrame.LookVector * 5
+
+                root.CFrame = CFrame.new(behindPosition, lookDirection)
+
+                -- Click chuột trái mỗi 1 giây
+                if tick() - lastClick >= 1 then
+                    VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                    task.wait(0.05)
+                    VirtualInput:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                    lastClick = tick()
+                end
+
+                task.wait(0.05)
+            end
+        end)
+    end
+end)
+
+
+
+
 
     Tabs.Player:AddSection("↳ Flying")
 
