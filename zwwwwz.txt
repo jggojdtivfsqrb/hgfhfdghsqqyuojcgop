@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.1.5",
+    SubTitle = "Version 2.1.6",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -339,7 +339,7 @@ local VirtualInput = game:GetService("VirtualInputManager")
 local AutoAttack = false
 local hasPressedKey1 = false
 
---// Hàm tìm player gần nhất
+--// Hàm tìm player gần nhất còn sống
 local function GetNearestPlayer()
     local nearest, shortestDistance = nil, math.huge
     local myChar = LocalPlayer.Character
@@ -349,10 +349,13 @@ local function GetNearestPlayer()
 
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
-            if dist < shortestDistance then
-                shortestDistance = dist
-                nearest = player
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.Health > 0 then -- Chỉ tấn công khi còn sống
+                local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
+                if dist < shortestDistance then
+                    shortestDistance = dist
+                    nearest = player
+                end
             end
         end
     end
@@ -391,15 +394,15 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                     VirtualInput:SendKeyEvent(false, Enum.KeyCode.One, false, game)
                 end
 
-                -- Gần hơn: chỉ lùi ra sau 1.5 studs
+                -- Dịch chuyển sau lưng đối thủ 1.5 studs
                 local backOffset = -targetRoot.CFrame.LookVector * 1.5
                 local behindPosition = targetRoot.Position + backOffset
                 local lookDirection = targetRoot.Position + targetRoot.CFrame.LookVector * 5
 
                 root.CFrame = CFrame.new(behindPosition, lookDirection)
 
-                -- Click chuột trái mỗi 1 giây
-                if tick() - lastClick >= 1 then
+                -- Click chuột trái mỗi 0.5 giây
+                if tick() - lastClick >= 0.5 then
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                     task.wait(0.05)
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, false, game, 0)
