@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [TEST] | Ink Game",
-    SubTitle = "Version 2.5.0",
+    SubTitle = "Version 2.5.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -340,38 +340,47 @@ local AutoAttack = false
 local LastTarget = nil
 local hasEquippedOnStart = false
 
---// Hàm tự cầm tool tên "Fork"
-local function EquipFork()
+--// Hàm tự cầm tool tên "Fork" hoặc "Bottle"
+local function EquipWeapon()
     local character = LocalPlayer.Character
     local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 
     if humanoid then
-        -- Tìm trong backpack
-        if backpack then
-            for _, tool in ipairs(backpack:GetChildren()) do
-                if tool:IsA("Tool") and tool.Name == "Fork" then
-                    humanoid:EquipTool(tool)
-                    return
+        -- Ưu tiên tìm Fork, nếu không có mới dùng Bottle
+        local function findTool(name)
+            -- tìm trong Backpack
+            if backpack then
+                for _, tool in ipairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") and tool.Name == name then
+                        return tool
+                    end
                 end
             end
-        end
-        -- Tìm trong character
-        for _, tool in ipairs(character:GetChildren()) do
-            if tool:IsA("Tool") and tool.Name == "Fork" then
-                humanoid:EquipTool(tool)
-                return
+            -- tìm trong Character
+            if character then
+                for _, tool in ipairs(character:GetChildren()) do
+                    if tool:IsA("Tool") and tool.Name == name then
+                        return tool
+                    end
+                end
             end
+            return nil
+        end
+
+        local tool = findTool("Fork") or findTool("Bottle")
+        if tool then
+            humanoid:EquipTool(tool)
         end
     end
 end
 
---// Hàm ấn phím 1 + cầm Fork
+--// Hàm ấn phím 1 + cầm weapon
 local function PressKey1AndEquip()
     VirtualInput:SendKeyEvent(true, Enum.KeyCode.One, false, game)
     task.wait(0.05)
     VirtualInput:SendKeyEvent(false, Enum.KeyCode.One, false, game)
-    EquipFork()
+    EquipWeapon()
 end
 
 --// Hàm tìm player máu yếu nhất (ưu tiên), nếu bằng máu thì chọn gần nhất
@@ -432,13 +441,13 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                 local targetRoot = Target.Character:FindFirstChild("HumanoidRootPart")
                 if not root or not targetRoot then break end
 
-                -- Khi vừa bật toggle → ấn 1 + cầm Fork 1 lần duy nhất
+                -- Khi bật toggle lần đầu → ấn 1 + cầm Fork/Bottle
                 if not hasEquippedOnStart then
                     hasEquippedOnStart = true
                     PressKey1AndEquip()
                 end
 
-                -- Nếu đổi target → ấn 1 + cầm Fork
+                -- Khi đổi mục tiêu → ấn 1 + cầm Fork/Bottle
                 if Target ~= LastTarget then
                     LastTarget = Target
                     PressKey1AndEquip()
@@ -451,8 +460,8 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
 
                 root.CFrame = CFrame.new(behindPosition, lookDirection)
 
-                -- Click chuột trái mỗi 1 giây
-                if tick() - lastClick >= 1 then
+                -- Click chuột trái mỗi 0.5 giây
+                if tick() - lastClick >= 0.5 then
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                     task.wait(0.05)
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, false, game, 0)
