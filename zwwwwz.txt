@@ -177,6 +177,9 @@ Tabs.Teleport:AddToggle("AutoTP", {
     end)
 end)
 
+    Tabs.Teleport:AddSection("↳ Games")
+
+
 Tabs.Teleport:AddButton({
     Title = "TP to Lobby",
     Callback = function()
