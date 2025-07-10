@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.0.7",
+    SubTitle = "Version 2.1.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -100,6 +100,83 @@ local Options = Fluent.Options
 
 -- Tabs.Teleport
 
+    Tabs.Teleport:AddSection("↳ Player")
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local selectedPlayer = nil
+local teleporting = false
+local playerList = {}
+
+-- Dropdown placeholder, sẽ cập nhật sau
+local dropdown
+
+-- Hàm cập nhật danh sách player (trừ chính mình)
+local function updatePlayerList()
+    playerList = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(playerList, player.Name)
+        end
+    end
+
+    -- Nếu dropdown đã tạo thì cập nhật lại danh sách
+    if dropdown then
+        dropdown:SetValues(playerList)
+        if #playerList > 0 then
+            selectedPlayer = playerList[1]
+            dropdown:SetValue(playerList[1])
+        else
+            selectedPlayer = nil
+            dropdown:SetValue("None")
+        end
+    end
+end
+
+-- ✅ Cập nhật danh sách ngay khi mở GUI
+updatePlayerList()
+
+-- 🔄 Tự động cập nhật lại sau mỗi 5 phút
+task.spawn(function()
+    while true do
+        task.wait(300)
+        updatePlayerList()
+    end
+end)
+
+-- Tạo Dropdown sau khi có danh sách player
+dropdown = Tabs.Teleport:AddDropdown("PlayerListDropdown", {
+    Title = "Select Player",
+    Values = playerList,
+    Multi = false,
+    Default = playerList[1] or "None"
+})
+
+dropdown:OnChanged(function(value)
+    selectedPlayer = value
+end)
+
+-- Toggle bật/tắt teleport liên tục
+Tabs.Teleport:AddToggle("AutoTP", {
+    Title = "TP to Player",
+    Default = false
+}):OnChanged(function(enabled)
+    teleporting = enabled
+
+    task.spawn(function()
+        while teleporting do
+            if selectedPlayer then
+                local targetPlayer = Players:FindFirstChild(selectedPlayer)
+                if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    LocalPlayer.Character:PivotTo(targetPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)) -- Teleport phía sau người chơi
+                end
+            end
+            task.wait(1)
+        end
+    end)
+end)
+
 Tabs.Teleport:AddButton({
     Title = "TP to Lobby",
     Callback = function()
@@ -116,6 +193,36 @@ Tabs.Teleport:AddButton({
         pcall(function()
             -- Tải và chạy script từ link
             loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/TPtoRedLight.lua"))()
+        end)
+    end
+})
+
+Tabs.Teleport:AddButton({
+    Title = "TP to Dalgona",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/TPtoDalgona.lua"))()
+        end)
+    end
+})
+
+Tabs.Teleport:AddButton({
+    Title = "TP to Hide & Seek",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/TPtoHideAndSeek.lua"))()
+        end)
+    end
+})
+
+Tabs.Teleport:AddButton({
+    Title = "TP to Glass Bridge",
+    Callback = function()
+        pcall(function()
+            -- Tải và chạy script từ link
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/SLK-gaming/Skid/refs/heads/main/TPtoGlassbridge"))()
         end)
     end
 })
@@ -1421,4 +1528,4 @@ do
 
     if Client.Character then Setup(Client.Character) end
     Client.CharacterAdded:Connect(Setup)
-end
+end)
