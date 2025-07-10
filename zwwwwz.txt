@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [TEST] | Ink Game",
-    SubTitle = "Version 2.5.2",
+    SubTitle = "Version 2.5.3",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -329,6 +329,7 @@ end)
 
 
 
+
 --// Services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -339,15 +340,22 @@ local AutoAttack = false
 local LastTarget = nil
 local hasActivatedOnStart = false
 
---// Kiểm tra cooldown (nếu tool có CooldownGui và nó Enabled)
-local function IsToolOnCooldown(tool)
-    if tool and tool:FindFirstChild("CooldownGui") then
-        return tool.CooldownGui.Enabled
-    end
-    return false
-end
+--// Tool kích hoạt (chỉ click), theo thứ tự ưu tiên
+local activationTools = {
+    "Power Hold",
+    "Push",
+    "Pocket Sand",
+    "Trip"
+}
 
---// Tìm tool trong Backpack hoặc Character
+--// Tool tấn công (equip để đánh), theo thứ tự ưu tiên
+local weaponTools = {
+    "Fists",
+    "Fork",
+    "Bottle"
+}
+
+--// Tìm tool trong Backpack và Character
 local function FindTool(name)
     local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
     local character = LocalPlayer.Character
@@ -371,39 +379,35 @@ local function FindTool(name)
     return nil
 end
 
---// Kích hoạt bằng Push hoặc Trip
-local function ActivateWithPushOrTrip()
-    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-
-    local push = FindTool("Push")
-    local trip = FindTool("Trip")
-
-    if push and not IsToolOnCooldown(push) then
-        humanoid:EquipTool(push)
-        task.wait(0.1)
-    elseif trip and not IsToolOnCooldown(trip) then
-        humanoid:EquipTool(trip)
-        task.wait(0.1)
+--// Kích hoạt tool bằng cách click (Activate())
+local function ActivateToolOnce()
+    for _, toolName in ipairs(activationTools) do
+        local tool = FindTool(toolName)
+        if tool and tool:IsA("Tool") then
+            -- Click 1 lần để kích hoạt
+            task.spawn(function()
+                tool:Activate()
+            end)
+            break
+        end
     end
 end
 
---// Cầm vũ khí chiến đấu: Fork → Bottle
+--// Cầm vũ khí tấn công
 local function EquipWeapon()
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
 
-    local fork = FindTool("Fork")
-    local bottle = FindTool("Bottle")
-
-    if fork then
-        humanoid:EquipTool(fork)
-    elseif bottle then
-        humanoid:EquipTool(bottle)
+    for _, toolName in ipairs(weaponTools) do
+        local tool = FindTool(toolName)
+        if tool then
+            humanoid:EquipTool(tool)
+            break
+        end
     end
 end
 
---// Hàm tìm player máu yếu nhất (ưu tiên), nếu bằng máu thì chọn gần nhất
+--// Tìm player còn sống gần nhất có máu thấp nhất
 local function GetPriorityPlayer()
     local myChar = LocalPlayer.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
@@ -437,7 +441,7 @@ local function GetPriorityPlayer()
     return candidates[1].Player
 end
 
---// Toggle AutoAttack
+--// Toggle Fluent
 Tabs.Player:AddToggle("AutoAttackToggle", {
     Title = "Auto Kill Player",
     Default = false
@@ -461,27 +465,27 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                 local targetRoot = Target.Character:FindFirstChild("HumanoidRootPart")
                 if not root or not targetRoot then break end
 
-                -- Lúc mới bật
+                -- Khi mới bật toggle
                 if not hasActivatedOnStart then
                     hasActivatedOnStart = true
-                    ActivateWithPushOrTrip()
+                    ActivateToolOnce()
                     EquipWeapon()
                 end
 
                 -- Khi đổi mục tiêu mới
                 if Target ~= LastTarget then
                     LastTarget = Target
-                    ActivateWithPushOrTrip()
+                    ActivateToolOnce()
                     EquipWeapon()
                 end
 
-                -- Dịch chuyển ra sau lưng target
+                -- Dịch chuyển sau lưng target
                 local backOffset = -targetRoot.CFrame.LookVector * 1.5
                 local behindPosition = targetRoot.Position + backOffset
                 local lookDirection = targetRoot.Position + targetRoot.CFrame.LookVector * 5
                 root.CFrame = CFrame.new(behindPosition, lookDirection)
 
-                -- Click chuột trái mỗi 0.5 giây
+                -- Click tấn công mỗi 0.5 giây
                 if tick() - lastClick >= 0.5 then
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                     task.wait(0.05)
