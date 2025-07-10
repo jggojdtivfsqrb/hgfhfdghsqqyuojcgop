@@ -21,8 +21,8 @@ local minimizeUI = Enum.KeyCode.RightAlt
 
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
-    Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.1.7",
+    Title = "Hutao hub [TEST] | Ink Game",
+    SubTitle = "Version 2.5.0",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -337,9 +337,44 @@ local VirtualInput = game:GetService("VirtualInputManager")
 
 --// Biến kiểm soát
 local AutoAttack = false
-local hasPressedKey1 = false
+local LastTarget = nil
+local hasEquippedOnStart = false
 
---// Hàm tìm player còn sống có máu thấp nhất (ưu tiên), nếu bằng nhau thì chọn người gần nhất
+--// Hàm tự cầm tool tên "Fork"
+local function EquipFork()
+    local character = LocalPlayer.Character
+    local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        -- Tìm trong backpack
+        if backpack then
+            for _, tool in ipairs(backpack:GetChildren()) do
+                if tool:IsA("Tool") and tool.Name == "Fork" then
+                    humanoid:EquipTool(tool)
+                    return
+                end
+            end
+        end
+        -- Tìm trong character
+        for _, tool in ipairs(character:GetChildren()) do
+            if tool:IsA("Tool") and tool.Name == "Fork" then
+                humanoid:EquipTool(tool)
+                return
+            end
+        end
+    end
+end
+
+--// Hàm ấn phím 1 + cầm Fork
+local function PressKey1AndEquip()
+    VirtualInput:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+    task.wait(0.05)
+    VirtualInput:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+    EquipFork()
+end
+
+--// Hàm tìm player máu yếu nhất (ưu tiên), nếu bằng máu thì chọn gần nhất
 local function GetPriorityPlayer()
     local myChar = LocalPlayer.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
@@ -362,12 +397,11 @@ local function GetPriorityPlayer()
 
     if #candidates == 0 then return nil end
 
-    -- Tìm người máu thấp nhất
     table.sort(candidates, function(a, b)
         if a.Health == b.Health then
-            return a.Distance < b.Distance -- nếu máu bằng nhau thì chọn người gần hơn
+            return a.Distance < b.Distance
         else
-            return a.Health < b.Health -- ưu tiên máu yếu hơn
+            return a.Health < b.Health
         end
     end)
 
@@ -380,7 +414,8 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
     Default = false
 }):OnChanged(function(Value)
     AutoAttack = Value
-    hasPressedKey1 = false
+    LastTarget = nil
+    hasEquippedOnStart = false
 
     if AutoAttack then
         task.spawn(function()
@@ -397,23 +432,27 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                 local targetRoot = Target.Character:FindFirstChild("HumanoidRootPart")
                 if not root or not targetRoot then break end
 
-                -- Ấn phím 1 một lần duy nhất
-                if not hasPressedKey1 then
-                    hasPressedKey1 = true
-                    VirtualInput:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-                    task.wait(0.05)
-                    VirtualInput:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+                -- Khi vừa bật toggle → ấn 1 + cầm Fork 1 lần duy nhất
+                if not hasEquippedOnStart then
+                    hasEquippedOnStart = true
+                    PressKey1AndEquip()
                 end
 
-                -- Dịch chuyển sau lưng đối thủ 1.5 studs
+                -- Nếu đổi target → ấn 1 + cầm Fork
+                if Target ~= LastTarget then
+                    LastTarget = Target
+                    PressKey1AndEquip()
+                end
+
+                -- Dịch chuyển sau lưng target
                 local backOffset = -targetRoot.CFrame.LookVector * 1.5
                 local behindPosition = targetRoot.Position + backOffset
                 local lookDirection = targetRoot.Position + targetRoot.CFrame.LookVector * 5
 
                 root.CFrame = CFrame.new(behindPosition, lookDirection)
 
-                -- Click chuột trái mỗi 0.5 giây
-                if tick() - lastClick >= 0.5 then
+                -- Click chuột trái mỗi 1 giây
+                if tick() - lastClick >= 1 then
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                     task.wait(0.05)
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, false, game, 0)
@@ -1545,4 +1584,4 @@ do
 
     if Client.Character then Setup(Client.Character) end
     Client.CharacterAdded:Connect(Setup)
-end 
+end
