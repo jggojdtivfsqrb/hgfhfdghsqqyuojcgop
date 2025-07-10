@@ -340,7 +340,7 @@ local AutoAttack = false
 local LastTarget = nil
 local hasActivatedOnStart = false
 
---// Tool kích hoạt (chỉ click), theo thứ tự ưu tiên
+--// Tool kích hoạt (dùng để equip một lần)
 local activationTools = {
     "Power Hold",
     "Push",
@@ -348,7 +348,7 @@ local activationTools = {
     "Trip"
 }
 
---// Tool tấn công (equip để đánh), theo thứ tự ưu tiên
+--// Tool tấn công
 local weaponTools = {
     "Fists",
     "Fork",
@@ -379,21 +379,22 @@ local function FindTool(name)
     return nil
 end
 
---// Kích hoạt tool bằng cách click (Activate())
-local function ActivateToolOnce()
+--// Dùng tool để kích hoạt (equip một lần)
+local function ActivateToolByEquip()
+    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
     for _, toolName in ipairs(activationTools) do
         local tool = FindTool(toolName)
-        if tool and tool:IsA("Tool") then
-            -- Click 1 lần để kích hoạt
-            task.spawn(function()
-                tool:Activate()
-            end)
+        if tool then
+            humanoid:EquipTool(tool)
+            task.wait(0.5)
             break
         end
     end
 end
 
---// Cầm vũ khí tấn công
+--// Cầm vũ khí chính để đánh
 local function EquipWeapon()
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
@@ -407,7 +408,7 @@ local function EquipWeapon()
     end
 end
 
---// Tìm player còn sống gần nhất có máu thấp nhất
+--// Ưu tiên player máu yếu nhất
 local function GetPriorityPlayer()
     local myChar = LocalPlayer.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
@@ -441,7 +442,7 @@ local function GetPriorityPlayer()
     return candidates[1].Player
 end
 
---// Toggle Fluent
+--// Toggle điều khiển
 Tabs.Player:AddToggle("AutoAttackToggle", {
     Title = "Auto Kill Player",
     Default = false
@@ -468,14 +469,14 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                 -- Khi mới bật toggle
                 if not hasActivatedOnStart then
                     hasActivatedOnStart = true
-                    ActivateToolOnce()
+                    ActivateToolByEquip()
                     EquipWeapon()
                 end
 
                 -- Khi đổi mục tiêu mới
                 if Target ~= LastTarget then
                     LastTarget = Target
-                    ActivateToolOnce()
+                    ActivateToolByEquip()
                     EquipWeapon()
                 end
 
@@ -485,7 +486,7 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                 local lookDirection = targetRoot.Position + targetRoot.CFrame.LookVector * 5
                 root.CFrame = CFrame.new(behindPosition, lookDirection)
 
-                -- Click tấn công mỗi 0.5 giây
+                -- Click chuột trái mỗi 0.5 giây
                 if tick() - lastClick >= 0.5 then
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                     task.wait(0.05)
