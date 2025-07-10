@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [FREE] | Ink Game",
-    SubTitle = "Version 2.1.6",
+    SubTitle = "Version 2.1.7",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -339,28 +339,39 @@ local VirtualInput = game:GetService("VirtualInputManager")
 local AutoAttack = false
 local hasPressedKey1 = false
 
---// Hàm tìm player gần nhất còn sống
-local function GetNearestPlayer()
-    local nearest, shortestDistance = nil, math.huge
+--// Hàm tìm player còn sống có máu thấp nhất (ưu tiên), nếu bằng nhau thì chọn người gần nhất
+local function GetPriorityPlayer()
     local myChar = LocalPlayer.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
-
     local myPos = myChar.HumanoidRootPart.Position
+
+    local candidates = {}
 
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid and humanoid.Health > 0 then -- Chỉ tấn công khi còn sống
-                local dist = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
-                if dist < shortestDistance then
-                    shortestDistance = dist
-                    nearest = player
-                end
+            if humanoid and humanoid.Health > 0 then
+                table.insert(candidates, {
+                    Player = player,
+                    Health = humanoid.Health,
+                    Distance = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
+                })
             end
         end
     end
 
-    return nearest
+    if #candidates == 0 then return nil end
+
+    -- Tìm người máu thấp nhất
+    table.sort(candidates, function(a, b)
+        if a.Health == b.Health then
+            return a.Distance < b.Distance -- nếu máu bằng nhau thì chọn người gần hơn
+        else
+            return a.Health < b.Health -- ưu tiên máu yếu hơn
+        end
+    end)
+
+    return candidates[1].Player
 end
 
 --// Toggle điều khiển
@@ -376,7 +387,7 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
             local lastClick = 0
 
             while AutoAttack do
-                local Target = GetNearestPlayer()
+                local Target = GetPriorityPlayer()
                 if not Target or not Target.Character or not Target.Character:FindFirstChild("HumanoidRootPart") then
                     task.wait(0.1)
                     continue
