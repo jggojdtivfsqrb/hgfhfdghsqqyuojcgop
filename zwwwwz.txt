@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [TEST] | Ink Game",
-    SubTitle = "Version 2.5.4",
+    SubTitle = "Version 2.5.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -351,6 +351,7 @@ local activationTools = {
 --// Tool tấn công
 local weaponTools = {
     "Fists",
+    "Knife",
     "Fork",
     "Bottle"
 }
