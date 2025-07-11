@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [TEST] | Ink Game",
-    SubTitle = "Version 2.5.5",
+    SubTitle = "Version 2.5.6",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -339,6 +339,7 @@ local VirtualInput = game:GetService("VirtualInputManager")
 local AutoAttack = false
 local LastTarget = nil
 local hasActivatedOnStart = false
+local PreferWeak = true -- Toggle ưu tiên máu thấp
 
 --// Tool kích hoạt (dùng để equip một lần)
 local activationTools = {
@@ -409,8 +410,8 @@ local function EquipWeapon()
     end
 end
 
---// Ưu tiên player máu yếu nhất
-local function GetPriorityPlayer()
+--// Hàm chọn player
+local function GetTargetPlayer()
     local myChar = LocalPlayer.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
     local myPos = myChar.HumanoidRootPart.Position
@@ -433,17 +434,21 @@ local function GetPriorityPlayer()
     if #candidates == 0 then return nil end
 
     table.sort(candidates, function(a, b)
-        if a.Health == b.Health then
-            return a.Distance < b.Distance
+        if PreferWeak then
+            if a.Health == b.Health then
+                return a.Distance < b.Distance
+            else
+                return a.Health < b.Health
+            end
         else
-            return a.Health < b.Health
+            return a.Distance < b.Distance
         end
     end)
 
     return candidates[1].Player
 end
 
---// Toggle điều khiển
+--// Toggle điều khiển AutoAttack
 Tabs.Player:AddToggle("AutoAttackToggle", {
     Title = "Auto Kill Player",
     Default = false
@@ -457,7 +462,7 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
             local lastClick = 0
 
             while AutoAttack do
-                local Target = GetPriorityPlayer()
+                local Target = GetTargetPlayer()
                 if not Target or not Target.Character or not Target.Character:FindFirstChild("HumanoidRootPart") then
                     task.wait(0.1)
                     continue
@@ -499,6 +504,14 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
             end
         end)
     end
+end)
+
+--// Toggle điều khiển ưu tiên máu yếu
+Tabs.Player:AddToggle("PreferWeakToggle", {
+    Title = "Prefer Low Health",
+    Default = true
+}):OnChanged(function(Value)
+    PreferWeak = Value
 end)
 
 
