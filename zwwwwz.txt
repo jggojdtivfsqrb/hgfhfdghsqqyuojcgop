@@ -22,7 +22,7 @@ local minimizeUI = Enum.KeyCode.RightAlt
 -- 🟢 Create Main UI
 local Window = Fluent:CreateWindow({
     Title = "Hutao hub [TEST] | Ink Game",
-    SubTitle = "Version 2.5.7",
+    SubTitle = "Version 2.5.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
     Acrylic = false,
@@ -339,14 +339,19 @@ local VirtualInput = game:GetService("VirtualInputManager")
 local AutoAttack = false
 local LastTarget = nil
 local hasActivatedOnStart = false
-local PreferWeak = true -- Toggle ưu tiên máu thấp
+local PreferWeak = true
 
---// Tool kích hoạt (dùng để equip một lần)
+--// Danh sách người chơi không bị tấn công (VIP)
+local VipPlayers = {
+    "Hu1a0_Hu9"
+}
+
+--// Tool kích hoạt
 local activationTools = {
     "Power Hold",
     "Push",
-    "Pocket Sand",
-    "Trip"
+    "Trip",
+    "Pocket Sand"
 }
 
 --// Tool tấn công
@@ -357,7 +362,7 @@ local weaponTools = {
     "Bottle"
 }
 
---// Tìm tool trong Backpack và Character
+--// Tìm tool trong Backpack/Character
 local function FindTool(name)
     local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
     local character = LocalPlayer.Character
@@ -381,7 +386,7 @@ local function FindTool(name)
     return nil
 end
 
---// Dùng tool để kích hoạt (equip một lần)
+--// Equip tool kích hoạt
 local function ActivateToolByEquip()
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
@@ -396,7 +401,7 @@ local function ActivateToolByEquip()
     end
 end
 
---// Cầm vũ khí chính để đánh
+--// Equip vũ khí tấn công
 local function EquipWeapon()
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
@@ -410,7 +415,7 @@ local function EquipWeapon()
     end
 end
 
---// Hàm chọn player
+--// Hàm chọn target phù hợp
 local function GetTargetPlayer()
     local myChar = LocalPlayer.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
@@ -419,14 +424,16 @@ local function GetTargetPlayer()
     local candidates = {}
 
     for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid and humanoid.Health > 0 then
-                table.insert(candidates, {
-                    Player = player,
-                    Health = humanoid.Health,
-                    Distance = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
-                })
+        if player ~= LocalPlayer and not table.find(VipPlayers, player.Name) then
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    table.insert(candidates, {
+                        Player = player,
+                        Health = humanoid.Health,
+                        Distance = (player.Character.HumanoidRootPart.Position - myPos).Magnitude
+                    })
+                end
             end
         end
     end
@@ -448,7 +455,7 @@ local function GetTargetPlayer()
     return candidates[1].Player
 end
 
---// Toggle điều khiển AutoAttack
+--// Toggle AutoAttack
 Tabs.Player:AddToggle("AutoAttackToggle", {
     Title = "Auto Kill Player",
     Default = false
@@ -472,27 +479,27 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
                 local targetRoot = Target.Character:FindFirstChild("HumanoidRootPart")
                 if not root or not targetRoot then break end
 
-                -- Khi mới bật toggle
+                -- Lần đầu bật toggle
                 if not hasActivatedOnStart then
                     hasActivatedOnStart = true
                     ActivateToolByEquip()
                     EquipWeapon()
                 end
 
-                -- Khi đổi mục tiêu mới
+                -- Khi đổi mục tiêu
                 if Target ~= LastTarget then
                     LastTarget = Target
                     ActivateToolByEquip()
                     EquipWeapon()
                 end
 
-                -- Dịch chuyển sau lưng target
+                -- Dịch chuyển sau lưng mục tiêu
                 local backOffset = -targetRoot.CFrame.LookVector * 1.5
                 local behindPosition = targetRoot.Position + backOffset
                 local lookDirection = targetRoot.Position + targetRoot.CFrame.LookVector * 5
                 root.CFrame = CFrame.new(behindPosition, lookDirection)
 
-                -- Click chuột trái mỗi 0.5 giây
+                -- Click chuột trái mỗi 0.5s
                 if tick() - lastClick >= 0.5 then
                     VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                     task.wait(0.05)
@@ -506,7 +513,7 @@ Tabs.Player:AddToggle("AutoAttackToggle", {
     end
 end)
 
---// Toggle điều khiển ưu tiên máu yếu
+--// Toggle Ưu tiên máu yếu
 Tabs.Player:AddToggle("PreferWeakToggle", {
     Title = "Prefer Low Health",
     Default = true
